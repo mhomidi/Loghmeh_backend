@@ -69,7 +69,7 @@ public class RestaurantMapper extends Mapper<Restaurant, String> implements IRes
     }
 
     @Override
-    protected void fillInsertValues(PreparedStatement st, Restaurant user) throws SQLException {
+    protected void fillInsertValues(PreparedStatement st, Restaurant restaurant) throws SQLException {
 
     }
 

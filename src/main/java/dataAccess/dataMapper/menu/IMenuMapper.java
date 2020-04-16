@@ -7,5 +7,5 @@ import java.sql.SQLException;
 
 
 public interface IMenuMapper extends IMapper<Menu, String> {
-	boolean insert(Menu user) throws SQLException;
+	boolean insert(Menu menu) throws SQLException;
 }

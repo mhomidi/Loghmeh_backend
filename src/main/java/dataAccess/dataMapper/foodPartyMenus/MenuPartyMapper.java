@@ -1,10 +1,10 @@
-package dataAccess.dataMapper.menu;
+package dataAccess.dataMapper.foodPartyMenus;
 
 
 import dataAccess.ConnectionPool;
 import dataAccess.dataMapper.Mapper;
 import domain.entity.Menu;
-import domain.entity.User;
+import domain.entity.MenuParty;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,26 +12,28 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class MenuMapper extends Mapper<Menu, String> implements IMenuMapper {
+public class MenuPartyMapper extends Mapper<MenuParty, String> implements IMenuPartyMapper {
 
-    private static MenuMapper instance;
+    private static MenuPartyMapper instance;
 
     static {
         try {
-            instance = new MenuMapper();
+            instance = new MenuPartyMapper();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    private MenuMapper() throws SQLException {
+    private MenuPartyMapper() throws SQLException {
         Connection con = ConnectionPool.getConnection();
-        PreparedStatement createTableStatement = con.prepareStatement("CREATE TABLE IF NOT EXISTS Menus " +
+        PreparedStatement createTableStatement = con.prepareStatement("CREATE TABLE IF NOT EXISTS FoodPartyMenus " +
                 "( menuId INT AUTO_INCREMENT,\n" +
                 "  foodName text CHARACTER SET utf8 COLLATE utf8_unicode_ci,\n" +
                 "  description text CHARACTER SET utf8 COLLATE utf8_unicode_ci,\n" +
                 "  popularity DOUBLE ,\n" +
-                "  price DOUBLE ,\n" +
+                "  newPrice DOUBLE ,\n" +
+                "  oldPrice DOUBLE ,\n" +
+                "  FoodCount INT ,\n" +
                 "  foodUrlImage text,\n" +
                 "  restaurantId varchar(250),\n" +
                 "  FOREIGN KEY(restaurantId) references Restaurants(restaurantId) ON DELETE CASCADE,\n" +
@@ -42,7 +44,7 @@ public class MenuMapper extends Mapper<Menu, String> implements IMenuMapper {
         con.close();
     }
 
-    public static MenuMapper getInstance() {
+    public static MenuPartyMapper getInstance() {
         return instance;
     }
 
@@ -64,17 +66,17 @@ public class MenuMapper extends Mapper<Menu, String> implements IMenuMapper {
     }
 
     @Override
-    protected Menu convertResultSetToDomainModel(ResultSet rs) throws SQLException {
+    protected MenuParty convertResultSetToDomainModel(ResultSet rs) throws SQLException {
         return null;
     }
 
     @Override
-    protected ArrayList<Menu> convertResultSetToDomainModelList(ResultSet rs) throws SQLException {
+    protected ArrayList<MenuParty> convertResultSetToDomainModelList(ResultSet rs) throws SQLException {
         return null;
     }
 
     @Override
-    protected void fillInsertValues(PreparedStatement st, Menu menu) throws SQLException {
+    protected void fillInsertValues(PreparedStatement st, MenuParty menuParty) throws SQLException {
 
     }
 

@@ -27,7 +27,7 @@ public class DeliveryMapper extends Mapper<Delivery, String> implements IDeliver
     private DeliveryMapper() throws SQLException {
         Connection con = ConnectionPool.getConnection();
         PreparedStatement createTableStatement = con.prepareStatement("CREATE TABLE IF NOT EXISTS Deliveries " +
-                "(  deliveryId CHAR(250),\n" +
+                "(  deliveryId VARCHAR(250),\n" +
                 "   velocity DOUBLE ,\n" +
                 "   location_X DOUBLE ,\n" +
                 "   location_Y DOUBLE ,\n" +

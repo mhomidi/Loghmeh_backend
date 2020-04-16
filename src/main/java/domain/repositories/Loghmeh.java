@@ -1,7 +1,11 @@
 package domain.repositories;
 
+import dataAccess.dataMapper.currOrders.CurrOrdersMapper;
 import dataAccess.dataMapper.delivery.DeliveryMapper;
+import dataAccess.dataMapper.foodPartyMenus.MenuPartyMapper;
 import dataAccess.dataMapper.menu.MenuMapper;
+import dataAccess.dataMapper.orderMenu.OrderMenuMapper;
+import dataAccess.dataMapper.orders.OrdersMapper;
 import dataAccess.dataMapper.restaurant.RestaurantMapper;
 import dataAccess.dataMapper.user.UserMapper;
 import domain.entity.Delivery;
@@ -31,6 +35,10 @@ public class Loghmeh {
     private RestaurantMapper restaurantMapper;
     private MenuMapper menuMapper;
     private DeliveryMapper deliveryMapper;
+    private MenuPartyMapper menuPartyMapper;
+    private OrdersMapper allOrdersMapper;
+    private OrderMenuMapper orderMenuMapper;
+    private CurrOrdersMapper currOrdersMapper;
 
 
     private Loghmeh() {
@@ -45,6 +53,10 @@ public class Loghmeh {
         this.restaurantMapper = RestaurantMapper.getInstance();
         this.menuMapper = MenuMapper.getInstance();
         this.deliveryMapper = DeliveryMapper.getInstance();
+        this.menuPartyMapper = MenuPartyMapper.getInstance();
+        this.allOrdersMapper = OrdersMapper.getInstance();
+        this.orderMenuMapper = OrderMenuMapper.getInstance();
+        this.currOrdersMapper = CurrOrdersMapper.getInstance();
 
     }
 

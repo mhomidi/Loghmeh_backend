@@ -1,5 +1,9 @@
 package domain.repositories;
 
+import dataAccess.dataMapper.delivery.DeliveryMapper;
+import dataAccess.dataMapper.menu.MenuMapper;
+import dataAccess.dataMapper.restaurant.RestaurantMapper;
+import dataAccess.dataMapper.user.UserMapper;
 import domain.entity.Delivery;
 import domain.entity.FoodParty;
 import domain.entity.Restaurant;
@@ -15,20 +19,33 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 
 
-public class Repository {
+public class Loghmeh {
     private ArrayList<Restaurant> restaurants;
     private ArrayList<User> users;
-    private static Repository instance;
+    private static Loghmeh instance;
     private ArrayList<Delivery> deliveries;
     private ArrayList<FoodParty> foodParties;
     private LocalTime startGetFoodParty;
 
-    private Repository() {
+    private UserMapper userMapper;
+    private RestaurantMapper restaurantMapper;
+    private MenuMapper menuMapper;
+    private DeliveryMapper deliveryMapper;
+
+
+    private Loghmeh() {
         restaurants = new ArrayList<Restaurant>();
         deliveries = new ArrayList<Delivery>();
         foodParties = new ArrayList<FoodParty>();
         users = new ArrayList<User>();
         this.startGetFoodParty = LocalTime.now();
+
+
+        this.userMapper = UserMapper.getInstance();
+        this.restaurantMapper = RestaurantMapper.getInstance();
+        this.menuMapper = MenuMapper.getInstance();
+        this.deliveryMapper = DeliveryMapper.getInstance();
+
     }
 
 
@@ -53,9 +70,9 @@ public class Repository {
         this.deliveries = deliveries;
     }
 
-    public static Repository getInstance() {
+    public static Loghmeh getInstance() {
         if (instance == null) {
-            instance = new Repository();
+            instance = new Loghmeh();
             String restaurantUrl = "http://138.197.181.131:8080/restaurants";
             System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
             System.out.println("start adding restaurant");
@@ -98,7 +115,7 @@ public class Repository {
     }
 
     public boolean isRestaurantExist(String id){
-        ArrayList<Restaurant> restaurants = Repository.getInstance().getRestaurants();
+        ArrayList<Restaurant> restaurants = Loghmeh.getInstance().getRestaurants();
         for (int i=0;i<restaurants.size();i++){
             if(restaurants.get(i).getId().equals(id)){
                 return true;

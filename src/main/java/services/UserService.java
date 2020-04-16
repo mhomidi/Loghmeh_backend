@@ -7,7 +7,7 @@ import domain.entity.Restaurant;
 import domain.exceptions.*;
 
 import domain.entity.DeliveryStatus;
-import domain.repositories.Repository;
+import domain.repositories.Loghmeh;
 import domain.entity.User;
 import models.data.user.mapper.UserMapper;
 
@@ -103,7 +103,7 @@ public class UserService {
     }
 
     public static ArrayList<User> getAllUsers(){
-        return Repository.getInstance().getUsers();
+        return Loghmeh.getInstance().getUsers();
     }
 }
 

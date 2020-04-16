@@ -4,7 +4,7 @@ import domain.entity.*;
 import domain.exceptions.FoodNotExist;
 import domain.exceptions.RestaurantNotAvailable;
 import domain.exceptions.RestaurantNotFound;
-import domain.repositories.Repository;
+import domain.repositories.Loghmeh;
 
 import domain.entity.User;
 import org.json.simple.JSONArray;
@@ -54,7 +54,7 @@ public class RestaurantService {
     }
 
     private  Restaurant find(String id){
-        ArrayList<Restaurant> restaurants = Repository.getInstance().getRestaurants();
+        ArrayList<Restaurant> restaurants = Loghmeh.getInstance().getRestaurants();
         for(int i=0;i<restaurants.size();i++){
             if(restaurants.get(i).getId().equals(id)){
                 return restaurants.get(i);
@@ -64,12 +64,12 @@ public class RestaurantService {
     }
 
     private  void insert(Restaurant new_restaurant){
-        Repository.getInstance().addRestaurant(new_restaurant);
+        Loghmeh.getInstance().addRestaurant(new_restaurant);
     }
 
 
     public  ArrayList<Restaurant> getAllRestaurants(){
-        return Repository.getInstance().getRestaurants();
+        return Loghmeh.getInstance().getRestaurants();
     }
 
     public boolean restaurantAvailable(Restaurant restaurant){
@@ -115,7 +115,7 @@ public class RestaurantService {
 
 
     public Restaurant getRestaurantWithId(String id){
-        ArrayList<Restaurant> restaurants = Repository.getInstance().getRestaurants();
+        ArrayList<Restaurant> restaurants = Loghmeh.getInstance().getRestaurants();
         for (Restaurant restaurant:restaurants){
             if (restaurant.getId().equals(id)){
                 return restaurant;
@@ -125,7 +125,7 @@ public class RestaurantService {
     }
 
     public FoodParty findRestaurantInFoodParty(String restaurantId){
-        ArrayList<FoodParty> foodParties = Repository.getInstance().getFoodParties();
+        ArrayList<FoodParty> foodParties = Loghmeh.getInstance().getFoodParties();
         for(int i=0;i<foodParties.size();i++){
             if(foodParties.get(i).getRestaurantId().equals(restaurantId)){
                 return foodParties.get(i);
@@ -234,21 +234,21 @@ public class RestaurantService {
 
 
     public void setTimerForFoodParty(){
-        Repository.getInstance().setStartGetFoodParty(LocalTime.now());
+        Loghmeh.getInstance().setStartGetFoodParty(LocalTime.now());
     }
 
     public LocalTime getTimerForFoodParty(){
-        return Repository.getInstance().getStartGetFoodParty();
+        return Loghmeh.getInstance().getStartGetFoodParty();
     }
 
 
     public ArrayList<FoodParty> getFoodParties(){
-        return Repository.getInstance().getFoodParties();
+        return Loghmeh.getInstance().getFoodParties();
     }
 
 
     public void setFoodParties(ArrayList<FoodParty> foodParties){
-        Repository.getInstance().setFoodParties(foodParties);
+        Loghmeh.getInstance().setFoodParties(foodParties);
     }
 
 
@@ -263,7 +263,7 @@ public class RestaurantService {
     }
 
     public boolean isRestaurantExist(String id){
-        ArrayList<Restaurant> restaurants = Repository.getInstance().getRestaurants();
+        ArrayList<Restaurant> restaurants = Loghmeh.getInstance().getRestaurants();
         for (int i=0;i<restaurants.size();i++){
             if(restaurants.get(i).getId().equals(id)){
                 return true;
@@ -273,7 +273,7 @@ public class RestaurantService {
     }
 
     public void addRestaurant(Restaurant restaurant){
-        Repository.getInstance().addRestaurant(restaurant);
+        Loghmeh.getInstance().addRestaurant(restaurant);
     }
 
 

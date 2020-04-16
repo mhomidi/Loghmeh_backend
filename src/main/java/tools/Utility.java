@@ -3,15 +3,14 @@ package tools;
 
 import domain.entity.Delivery;
 import domain.exceptions.RestaurantExist;
-import domain.repositories.Repository;
+import domain.repositories.Loghmeh;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import java.util.*;
 
 public class Utility {
-
-    public static void addRestaurantFromJSONArray(Repository system, JSONArray jsonArray) {
+    public static void addRestaurantFromJSONArray(Loghmeh system, JSONArray jsonArray) {
         for(int i=0;i<jsonArray.size();i++){
             try{
                 system.addRestaurantCommand((JSONObject)jsonArray.get(i));
@@ -20,8 +19,6 @@ public class Utility {
             }
         }
     }
-
-
 
 
 

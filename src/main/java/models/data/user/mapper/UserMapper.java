@@ -2,7 +2,7 @@ package models.data.user.mapper;
 
 import domain.exceptions.UserAlreadyExists;
 import domain.exceptions.UserNotFound;
-import domain.repositories.Repository;
+import domain.repositories.Loghmeh;
 import domain.entity.User;
 import java.util.ArrayList;
 
@@ -14,7 +14,7 @@ public  class UserMapper{
     }
 
     public boolean validateUser(String username, String password){
-        ArrayList<User> users=Repository.getInstance().getUsers();
+        ArrayList<User> users= Loghmeh.getInstance().getUsers();
         for(int i=0;i<users.size();i++){
             if(users.get(i).getUsername().equals(username) && users.get(i).getUserPassword().equals(password)){
                 return true;
@@ -31,7 +31,7 @@ public  class UserMapper{
     }
 
     private User find(String username){
-        ArrayList<User> users=Repository.getInstance().getUsers();
+        ArrayList<User> users= Loghmeh.getInstance().getUsers();
         for(int i=0;i<users.size();i++){
             if(users.get(i).getUsername().equals(username)){
                 return users.get(i);
@@ -41,7 +41,7 @@ public  class UserMapper{
     }
 
     private void insert(User new_user){
-        Repository.getInstance().addUser(new_user);
+        Loghmeh.getInstance().addUser(new_user);
     }
 
 

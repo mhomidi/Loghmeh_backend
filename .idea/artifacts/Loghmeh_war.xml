@@ -1,0 +1,14 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="Loghmeh:war">
+    <output-path>$PROJECT_DIR$/target</output-path>
+    <properties id="maven-jee-properties">
+      <options>
+        <module>Loghmeh</module>
+        <packaging>war</packaging>
+      </options>
+    </properties>
+    <root id="archive" name="IEServletJSP.war">
+      <element id="artifact" artifact-name="Loghmeh:war exploded" />
+    </root>
+  </artifact>
+</component>

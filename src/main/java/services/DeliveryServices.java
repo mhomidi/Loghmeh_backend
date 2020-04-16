@@ -3,7 +3,7 @@ package services;
 import domain.entity.*;
 import domain.exceptions.RestaurantNotAvailable;
 import domain.exceptions.RestaurantNotFound;
-import domain.repositories.Repository;
+import domain.repositories.Loghmeh;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -88,7 +88,7 @@ public class DeliveryServices {
 
 
     public boolean deliveryExist(String id) {
-        ArrayList<Delivery> deliveries = Repository.getInstance().getDeliveries();
+        ArrayList<Delivery> deliveries = Loghmeh.getInstance().getDeliveries();
         for (Delivery delivery : deliveries) {
             if (delivery.getId().equals(id)) {
                 return true;
@@ -99,16 +99,16 @@ public class DeliveryServices {
 
 
     public void addDelivery(Delivery new_delivery){
-        Repository.getInstance().addDelivery(new_delivery);
+        Loghmeh.getInstance().addDelivery(new_delivery);
     }
 
     public void cleanDeliveries(){
         ArrayList<Delivery> deliveries = new ArrayList<Delivery>();
-        Repository.getInstance().setDeliveries(deliveries);
+        Loghmeh.getInstance().setDeliveries(deliveries);
     }
 
     public boolean NoDelivery(){
-        return Repository.getInstance().getDeliveries().size() == 0 ;
+        return Loghmeh.getInstance().getDeliveries().size() == 0 ;
     }
 
 
@@ -149,7 +149,7 @@ public class DeliveryServices {
     }
 
     public ArrayList<Delivery> getAllDeliveries(){
-        return Repository.getInstance().getDeliveries();
+        return Loghmeh.getInstance().getDeliveries();
     }
 
 }

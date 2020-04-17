@@ -85,7 +85,7 @@ public class Loghmeh {
     public static Loghmeh getInstance() {
         if (instance == null) {
             instance = new Loghmeh();
-//            initialize();
+            initialize();
         }
         return instance;
     }

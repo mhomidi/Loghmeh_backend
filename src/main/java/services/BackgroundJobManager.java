@@ -13,7 +13,7 @@ public class BackgroundJobManager implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent event) {
         scheduler = Executors.newSingleThreadScheduledExecutor();
-        scheduler.scheduleAtFixedRate(new GetDeliveryList(), 1, 20, TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(new GetDeliveryList(), 1, 30*60, TimeUnit.SECONDS);
         scheduler.scheduleAtFixedRate(new GetFoodPartyList(), 1, 30*60, TimeUnit.SECONDS);
     }
 

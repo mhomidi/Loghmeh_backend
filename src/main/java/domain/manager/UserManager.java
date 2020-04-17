@@ -15,11 +15,12 @@ import services.Authentication;
 
 
 import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class UserManager {
 
-    public static String login(String username, String password) throws LoginFailure {
+    public static String login(String username, String password) throws LoginFailure , SQLException {
         password = Hashing.sha256().hashString(password, StandardCharsets.UTF_8).toString();
         if (!dataAccess.dataMapper.user.UserMapper.getInstance().validateUser(username,password)) {
             throw new LoginFailure();
@@ -27,7 +28,7 @@ public class UserManager {
         return Authentication.createToken(username);
     }
 
-    public static void registerUser(UserDAO user) throws InvalidUser, UserAlreadyExists {
+    public static void registerUser(UserDAO user) throws InvalidUser, UserAlreadyExists , SQLException {
         if(user.getUsername().equals("") || user.getFirstName().equals("") ||
                 user.getLastName().equals("")
                 || user.getEmail().equals("") || user.getPassword().equals(""))

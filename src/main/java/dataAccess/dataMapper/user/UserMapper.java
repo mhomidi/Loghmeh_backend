@@ -4,11 +4,11 @@ package dataAccess.dataMapper.user;
 import dataAccess.ConnectionPool;
 import dataAccess.dataMapper.Mapper;
 import domain.databaseEntity.UserDAO;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import domain.exceptions.UserAlreadyExists;
+
+import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class UserMapper extends Mapper<UserDAO, String> implements IUserMapper {
 
@@ -43,32 +43,11 @@ public class UserMapper extends Mapper<UserDAO, String> implements IUserMapper {
     }
 
     @Override
-    protected String getFindAllStatement() {
-        return null;
-    }
-
-
-
-    @Override
-    protected String getFindStatement() {
-      return null;
-    }
-
-    @Override
     protected String getInsertStatement() {
         return "INSERT INTO Users (username, firstname, lastname, password, email, phone, credit) " +
                 "VALUES(?, ?, ?, ?, ?, ?, ?)";
     }
 
-    @Override
-    protected UserDAO convertResultSetToDomainModel(ResultSet rs) throws SQLException {
-        return null;
-    }
-
-    @Override
-    protected ArrayList<UserDAO> convertResultSetToDomainModelList(ResultSet rs) throws SQLException {
-        return null;
-    }
 
     @Override
     protected void fillInsertValues(PreparedStatement st, UserDAO user) throws SQLException {
@@ -81,6 +60,82 @@ public class UserMapper extends Mapper<UserDAO, String> implements IUserMapper {
         st.setDouble(7,0.0);
     }
 
+
+    @Override
+    public String getValidateUserStatement() {
+        return "SELECT * " +
+                "FROM Users U " +
+                "WHERE U.username = ? " +
+                "AND U.password = ? ";
+    }
+
+    @Override
+    protected String getFindStatement() {
+        return "SELECT *" +
+                " FROM Users" +
+                " WHERE username = ?";
+    }
+
+
+    @Override
+    public void fillValidateUserStatement(PreparedStatement st, String username, String pass) throws SQLException {
+        st.setString(1, username);
+        st.setString(2, pass);
+    }
+
+    @Override
+    public boolean validateUser(String username, String password) throws SQLException {
+        try (Connection con = ConnectionPool.getConnection();
+             PreparedStatement stmt = con.prepareStatement(
+                     getValidateUserStatement())
+        ) {
+            fillValidateUserStatement(stmt, username, password);
+            ResultSet resultSet;
+            resultSet = stmt.executeQuery();
+            boolean valid = false;
+            if(resultSet.next())
+                valid = true;
+            resultSet.close();
+            stmt.close();
+            con.close();
+            return valid;
+        }
+    }
+
+
+
+
+
+    @Override
+    protected String getFindAllStatement() {
+        return null;
+    }
+
+
+
+
+
+
+    @Override
+    protected UserDAO convertResultSetToDomainModel(ResultSet rs) throws SQLException {
+        return new UserDAO (
+                rs.getString(1),
+                rs.getString(2),
+                rs.getString(3),
+                rs.getString(6),
+                rs.getString(5),
+                rs.getString(4),
+                rs.getDouble(7)
+        );
+    }
+
+    @Override
+    protected ArrayList<UserDAO> convertResultSetToDomainModelList(ResultSet rs) throws SQLException {
+        return null;
+    }
+
+
+    @Override
     public boolean insert(UserDAO user) throws SQLException {
         boolean result = true;
         Connection con = ConnectionPool.getConnection();
@@ -100,24 +155,10 @@ public class UserMapper extends Mapper<UserDAO, String> implements IUserMapper {
     }
 
 
-    public void  registerUser(UserDAO user){
-        //if not find add user
-        try {
-            this.insert(user);
-        }catch (SQLException e){
-
+    public void  registerUser(UserDAO user) throws UserAlreadyExists,SQLException{
+        if(find(user.getUsername()) != null) {
+            throw new UserAlreadyExists();
         }
+        this.insert(user);
     }
-
-
-    public boolean validateUser(String username,String password){
-        return true;
-    }
-
-
-
-
-
-
-
 }

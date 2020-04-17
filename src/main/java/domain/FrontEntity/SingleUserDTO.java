@@ -1,10 +1,10 @@
-package controller.user.responses;
+package domain.FrontEntity;
 
 
 import domain.entity.User;
 
 
-public class SingleUserInfoResponse {
+public class SingleUserDTO {
     private String username;
     private String firstName;
     private String lastName;
@@ -12,7 +12,7 @@ public class SingleUserInfoResponse {
     private String phone;
     private Double credit;
 
-    public SingleUserInfoResponse(User user) {
+    public SingleUserDTO(User user) {
         this.username = user.getUsername();
         this.firstName = user.getUserFirstName();
         this.lastName = user.getUserLastName();

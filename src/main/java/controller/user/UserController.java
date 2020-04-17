@@ -4,7 +4,7 @@ package controller.user;
 
 import controller.user.requests.*;
 import controller.user.responses.BuyBasketResponse;
-import controller.user.responses.SingleUserInfoResponse;
+import domain.FrontEntity.SingleUserDTO;
 import controller.user.responses.TokenResponse;
 import controller.user.responses.UserOrdersResponse;
 import domain.databaseEntity.UserDAO;
@@ -21,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.SQLException;
 
 
 @RestController
@@ -36,6 +37,9 @@ public class UserController {
             return  ResponseEntity.status(HttpStatus.OK).body(new TokenResponse(token,request.getUsername()));
         }catch (LoginFailure e){
             Message m = new Message(e.getMessage());
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
+        }catch (SQLException e){
+            Message m = new Message("خطای دیتابیس هنگام ورود به صفحه ی کاربری");
             return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
         }
     }
@@ -63,6 +67,9 @@ public class UserController {
         }catch (LoginFailure e){
             Message m = new Message(e.getMessage());
             return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
+        }catch (SQLException e){
+            Message m = new Message("خطای دیتابیس هنگام ورود به صفحه ی کاربری");
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
         }
 
     }
@@ -88,7 +95,7 @@ public class UserController {
         System.out.println("server return user info of " + username);
         try{
             return ResponseEntity.status(HttpStatus.OK).body(
-                    new SingleUserInfoResponse(UserManager.getUserByID(username)));
+                    new SingleUserDTO(UserManager.getUserByID(username)));
         }catch (UserNotFound e){
             Message m = new Message(e.getMessage());
             return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);

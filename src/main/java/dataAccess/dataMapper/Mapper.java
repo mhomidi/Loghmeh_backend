@@ -18,30 +18,29 @@ public abstract class Mapper<T,I> implements IMapper<T,I> {
     abstract protected ArrayList<T> convertResultSetToDomainModelList(ResultSet rs) throws SQLException;
     abstract protected void fillInsertValues(PreparedStatement st, T data) throws SQLException;
 
-
     public T find(I id) throws SQLException {
-        Connection con = ConnectionPool.getConnection();
-        PreparedStatement st = con.prepareStatement(getFindStatement());
-        st.setString(1, id.toString());
-        try {
-        	ResultSet resultSet = st.executeQuery();
-        	if (resultSet.isClosed()) {
-        		st.close();
-        		con.close();
-    			return null;
-        	}
-            if(!resultSet.next()){
-                throw new SQLException();
+        try (Connection con = ConnectionPool.getConnection();
+             PreparedStatement stmt = con.prepareStatement(getFindStatement())
+        ) {
+            stmt.setString(1, id.toString());
+            ResultSet resultSet;
+            try {
+                resultSet = stmt.executeQuery();
+                if(!resultSet.next()) {
+                    resultSet.close();
+                    stmt.close();
+                    con.close();
+                    return null;
+                }
+                T founded = convertResultSetToDomainModel(resultSet);
+                resultSet.close();
+                stmt.close();
+                con.close();
+                return founded;
+            } catch (SQLException ex) {
+                System.out.println("error in Mapper.findByID query.");
+                throw ex;
             }
-        	T result = convertResultSetToDomainModel(resultSet);
-        	st.close();
-        	con.close();
-            return result;
-        } catch (SQLException ex) {
-            System.out.println("error in Mapper.findByID query.");
-            st.close();
-        	con.close();
-            throw ex;
         }
     }
 

@@ -3,6 +3,8 @@ package dataAccess.dataMapper.orderMenu;
 
 import dataAccess.ConnectionPool;
 import dataAccess.dataMapper.Mapper;
+import domain.databaseEntity.OrderMenuDAO;
+import domain.databaseEntity.OrdersDAO;
 import domain.entity.Menu;
 import domain.entity.Order;
 
@@ -12,7 +14,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class OrderMenuMapper extends Mapper<Order, String> implements IOrderMenuMapper {
+public class OrderMenuMapper extends Mapper<OrderMenuDAO, String> implements IOrderMenuMapper {
 
     private static OrderMenuMapper instance;
 
@@ -59,22 +61,45 @@ public class OrderMenuMapper extends Mapper<Order, String> implements IOrderMenu
 
     @Override
     protected String getInsertStatement() {
+        return "INSERT INTO Menus (orderId, menuId, countFood,  isFoodParty) " +
+                "VALUES(?, ?, ?, ?)";
+    }
+
+    @Override
+    protected OrderMenuDAO convertResultSetToDomainModel(ResultSet rs) throws SQLException {
         return null;
     }
 
     @Override
-    protected Order convertResultSetToDomainModel(ResultSet rs) throws SQLException {
+    protected ArrayList<OrderMenuDAO> convertResultSetToDomainModelList(ResultSet rs) throws SQLException {
         return null;
     }
 
     @Override
-    protected ArrayList<Order> convertResultSetToDomainModelList(ResultSet rs) throws SQLException {
-        return null;
+    protected void fillInsertValues(PreparedStatement st, OrderMenuDAO orderMenuDAO) throws SQLException {
+        st.setInt(1,orderMenuDAO.getOrderId());
+        st.setInt(2,orderMenuDAO.getMenuId());
+        st.setInt(3,orderMenuDAO.getCount());
+        st.setBoolean(4,orderMenuDAO.isFoodParty());
     }
 
-    @Override
-    protected void fillInsertValues(PreparedStatement st, Order order) throws SQLException {
 
+    public boolean insert(OrderMenuDAO orderMenuDAO) throws SQLException {
+        boolean result = true;
+        Connection con = ConnectionPool.getConnection();
+        PreparedStatement preparedStatement = con.prepareStatement(getInsertStatement());
+        fillInsertValues(preparedStatement, orderMenuDAO);
+        try {
+            result &= preparedStatement.execute();
+        } catch (Exception e) {
+            preparedStatement.close();
+            con.close();
+            e.printStackTrace();
+            return false;
+        }
+        preparedStatement.close();
+        con.close();
+        return result;
     }
 
 

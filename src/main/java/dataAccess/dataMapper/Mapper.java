@@ -82,4 +82,5 @@ public abstract class Mapper<T,I> implements IMapper<T,I> {
 			return false;
 		}
     }
+
 }

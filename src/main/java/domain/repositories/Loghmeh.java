@@ -1,6 +1,6 @@
 package domain.repositories;
 
-import dataAccess.dataMapper.currOrders.CurrOrdersMapper;
+
 import dataAccess.dataMapper.delivery.DeliveryMapper;
 import dataAccess.dataMapper.foodPartyMenus.MenuPartyMapper;
 import dataAccess.dataMapper.menu.MenuMapper;
@@ -38,7 +38,6 @@ public class Loghmeh {
     private MenuPartyMapper menuPartyMapper;
     private OrdersMapper allOrdersMapper;
     private OrderMenuMapper orderMenuMapper;
-    private CurrOrdersMapper currOrdersMapper;
 
 
     private Loghmeh() {
@@ -46,9 +45,9 @@ public class Loghmeh {
         deliveries = new ArrayList<Delivery>();
         foodParties = new ArrayList<FoodParty>();
         users = new ArrayList<User>();
+
+
         this.startGetFoodParty = LocalTime.now();
-
-
         this.userMapper = UserMapper.getInstance();
         this.restaurantMapper = RestaurantMapper.getInstance();
         this.menuMapper = MenuMapper.getInstance();
@@ -56,30 +55,6 @@ public class Loghmeh {
         this.menuPartyMapper = MenuPartyMapper.getInstance();
         this.allOrdersMapper = OrdersMapper.getInstance();
         this.orderMenuMapper = OrderMenuMapper.getInstance();
-        this.currOrdersMapper = CurrOrdersMapper.getInstance();
-
-    }
-
-
-    public void addDelivery(Delivery new_delivery){
-        this.deliveries.add(new_delivery);
-    }
-
-    public void setStartGetFoodParty(LocalTime startGetFoodParty) {
-        this.startGetFoodParty = startGetFoodParty;
-    }
-
-    public LocalTime getStartGetFoodParty() {
-        return this.startGetFoodParty;
-    }
-
-    public void setFoodParties(ArrayList<FoodParty> foodParties){
-        this.foodParties = new ArrayList<FoodParty>();
-        this.foodParties = foodParties;
-    }
-    public void setDeliveries(ArrayList<Delivery> deliveries){
-        this.deliveries = new ArrayList<Delivery>();
-        this.deliveries = deliveries;
     }
 
     public static Loghmeh getInstance() {
@@ -89,7 +64,6 @@ public class Loghmeh {
         }
         return instance;
     }
-
 
     public static void initialize(){
         RestaurantManager.getInstance().getRestaurantsFromUrl();
@@ -108,6 +82,43 @@ public class Loghmeh {
         System.out.println("finish adding restaurant");
         System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n\n\n");
     }
+
+    public void setStartGetFoodParty(LocalTime startGetFoodParty) {
+        this.startGetFoodParty = startGetFoodParty;
+    }
+    public LocalTime getStartGetFoodParty() {
+        return this.startGetFoodParty;
+    }
+
+
+
+
+
+
+
+
+
+
+    public void addDelivery(Delivery new_delivery){
+        this.deliveries.add(new_delivery);
+    }
+
+
+    public void setFoodParties(ArrayList<FoodParty> foodParties){
+        this.foodParties = new ArrayList<FoodParty>();
+        this.foodParties = foodParties;
+    }
+    public void setDeliveries(ArrayList<Delivery> deliveries){
+        this.deliveries = new ArrayList<Delivery>();
+        this.deliveries = deliveries;
+    }
+
+
+
+
+
+
+
 
 
     public static void addRestaurantFromJSONArray(Loghmeh system,JSONArray jsonArray) {

@@ -22,6 +22,17 @@ public class SingleUserDTO {
     }
 
 
+    public SingleUserDTO(String username, String firstName, String lastName, String email, String phone, Double credit){
+        this.username = username;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.phone = phone;
+        this.credit = credit;
+    }
+
+
+
     public String getUsername() {
         return username;
     }

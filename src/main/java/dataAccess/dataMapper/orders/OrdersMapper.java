@@ -3,6 +3,8 @@ package dataAccess.dataMapper.orders;
 
 import dataAccess.ConnectionPool;
 import dataAccess.dataMapper.Mapper;
+import domain.databaseEntity.FoodPartyDAO;
+import domain.databaseEntity.OrdersDAO;
 import domain.entity.Menu;
 import domain.entity.Order;
 
@@ -12,7 +14,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class OrdersMapper extends Mapper<Order, String> implements IOrdersMapper {
+public class OrdersMapper extends Mapper<OrdersDAO, String> implements IOrdersMapper {
 
     private static OrdersMapper instance;
 
@@ -28,9 +30,9 @@ public class OrdersMapper extends Mapper<Order, String> implements IOrdersMapper
         Connection con = ConnectionPool.getConnection();
         PreparedStatement createTableStatement = con.prepareStatement("CREATE TABLE IF NOT EXISTS Orders " +
                 "( orderId INT AUTO_INCREMENT,\n" +
-                " username VARCHAR(20),\n" +
+                " username VARCHAR(50),\n" +
                 " restaurantId varchar(250),\n" +
-                " status INT ,\n" +
+                " status INT DEFAULT NULL ,\n" +
                 " deliverPersonId varchar(250) default NULL ,\n" +
                 " FOREIGN KEY(username) references Users(username) on delete cascade ,\n" +
                 " FOREIGN KEY(restaurantId) references Restaurants(restaurantId) on delete cascade ,\n" +
@@ -64,23 +66,45 @@ public class OrdersMapper extends Mapper<Order, String> implements IOrdersMapper
 
     @Override
     protected String getInsertStatement() {
+        return "INSERT INTO Orders (username, restaurantId, status,deliverPersonId) " +
+                "VALUES(?, ?, ?, ?)";
+    }
+
+    @Override
+    protected OrdersDAO convertResultSetToDomainModel(ResultSet rs) throws SQLException {
         return null;
     }
 
     @Override
-    protected Order convertResultSetToDomainModel(ResultSet rs) throws SQLException {
+    protected ArrayList<OrdersDAO> convertResultSetToDomainModelList(ResultSet rs) throws SQLException {
         return null;
     }
 
     @Override
-    protected ArrayList<Order> convertResultSetToDomainModelList(ResultSet rs) throws SQLException {
-        return null;
+    protected void fillInsertValues(PreparedStatement st, OrdersDAO order) throws SQLException {
+        st.setString(1,order.getUsername());
+        st.setString(2,order.getRestaurantId());
     }
 
-    @Override
-    protected void fillInsertValues(PreparedStatement st, Order order) throws SQLException {
 
+    public boolean insert(OrdersDAO order) throws SQLException {
+        boolean result = true;
+        Connection con = ConnectionPool.getConnection();
+        PreparedStatement preparedStatement = con.prepareStatement(getInsertStatement());
+        fillInsertValues(preparedStatement, order);
+        try {
+            result &= preparedStatement.execute();
+        } catch (Exception e) {
+            preparedStatement.close();
+            con.close();
+            e.printStackTrace();
+            return false;
+        }
+        preparedStatement.close();
+        con.close();
+        return result;
     }
+
 
 
 

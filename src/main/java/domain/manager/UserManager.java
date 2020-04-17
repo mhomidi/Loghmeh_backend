@@ -2,6 +2,8 @@ package domain.manager;
 
 import com.google.common.hash.Hashing;
 
+import dataAccess.dataMapper.user.UserMapper;
+import domain.FrontEntity.SingleUserDTO;
 import domain.databaseEntity.UserDAO;
 import domain.entity.Menu;
 import domain.entity.Restaurant;
@@ -10,7 +12,6 @@ import domain.exceptions.*;
 import domain.entity.DeliveryStatus;
 import domain.repositories.Loghmeh;
 import domain.entity.User;
-import models.data.user.mapper.UserMapper;
 import services.Authentication;
 
 
@@ -40,15 +41,24 @@ public class UserManager {
         dataAccess.dataMapper.user.UserMapper.getInstance().registerUser(user);
     }
 
-    public static User getUserByID(String userId) throws UserNotFound {
-        return UserMapper.getInstance().getUserById(userId);
+    public static SingleUserDTO getUserByID(String username) throws UserNotFound , SQLException {
+        UserDAO userDAO = dataAccess.dataMapper.user.UserMapper.getInstance().getUserById(username);
+        return new SingleUserDTO(userDAO.getUsername(), userDAO.getFirstName(), userDAO.getLastName(),
+                userDAO.getEmail() , userDAO.getPhone() , userDAO.getCredit());
     }
 
-    public static void addCredit(String username, Double amount)throws UserNotFound{
-        User user = UserMapper.getInstance().getUserById(username);
-        user.increaseCredit(amount);
+    public static void addCredit(String username, Double amount)throws UserNotFound , SQLException{
+        UserDAO user = UserMapper.getInstance().getUserById(username);
+        UserMapper.getInstance().updateUserCredit(user.getUsername() , user.getCredit() + amount);
     }
 
+
+
+
+
+
+
+    
 
     public static void addFoodToCart(User user , Restaurant restaurant , Menu food , int count)throws BuyFromOtherRestaurant{
         if (user.startChoosingFood()) {

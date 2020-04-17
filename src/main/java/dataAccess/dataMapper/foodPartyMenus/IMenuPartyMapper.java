@@ -1,10 +1,10 @@
 package dataAccess.dataMapper.foodPartyMenus;
 
 import dataAccess.dataMapper.IMapper;
-import domain.entity.MenuParty;
+import domain.databaseEntity.FoodPartyDAO;
 import java.sql.SQLException;
 
 
-public interface IMenuPartyMapper extends IMapper<MenuParty, String> {
-	boolean insert(MenuParty menuParty) throws SQLException;
+public interface IMenuPartyMapper extends IMapper<FoodPartyDAO, String> {
+	boolean insert(FoodPartyDAO menuParty) throws SQLException;
 }

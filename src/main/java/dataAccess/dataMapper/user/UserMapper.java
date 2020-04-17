@@ -5,6 +5,7 @@ import dataAccess.ConnectionPool;
 import dataAccess.dataMapper.Mapper;
 import domain.databaseEntity.UserDAO;
 import domain.exceptions.UserAlreadyExists;
+import domain.exceptions.UserNotFound;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -119,12 +120,12 @@ public class UserMapper extends Mapper<UserDAO, String> implements IUserMapper {
     @Override
     protected UserDAO convertResultSetToDomainModel(ResultSet rs) throws SQLException {
         return new UserDAO (
-                rs.getString(1),
                 rs.getString(2),
                 rs.getString(3),
-                rs.getString(6),
-                rs.getString(5),
+                rs.getString(1),
                 rs.getString(4),
+                rs.getString(5),
+                rs.getString(6),
                 rs.getDouble(7)
         );
     }
@@ -160,5 +161,25 @@ public class UserMapper extends Mapper<UserDAO, String> implements IUserMapper {
             throw new UserAlreadyExists();
         }
         this.insert(user);
+    }
+
+
+    public UserDAO getUserById(String username) throws UserNotFound, SQLException {
+        UserDAO user;
+        user = find(username);
+        if(user != null)
+            return user;
+        else
+            throw new UserNotFound();
+    }
+
+    public void updateUserCredit(String username , Double new_credit) throws SQLException {
+        Connection con = ConnectionPool.getConnection();
+        PreparedStatement preparedStatement = con.prepareStatement("UPDATE Users SET credit=? WHERE username=?");
+        preparedStatement.setDouble(1, new_credit);
+        preparedStatement.setString(2, username);
+        preparedStatement.executeUpdate();
+        preparedStatement.close();
+        con.close();
     }
 }

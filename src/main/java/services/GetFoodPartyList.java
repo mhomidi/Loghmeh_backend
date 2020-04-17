@@ -8,6 +8,8 @@ public class GetFoodPartyList implements Runnable {
 
     @Override
     public void run()  {
+        System.out.println("get food party triggered by scheduler");
+        RestaurantManager.getInstance().getFoodPartiesFromUrl();
         JSONArray jsonArray = RestaurantManager.getInstance().requestFoodPartApiGetList();
         RestaurantManager.getInstance().updateListOfFoodParty(jsonArray);
     }

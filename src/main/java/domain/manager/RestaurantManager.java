@@ -1,12 +1,15 @@
 package domain.manager;
 
+import domain.FrontEntity.RestaurantMenuDTO;
+import domain.FrontEntity.RestaurantInfoDTO;
+import dataAccess.dataMapper.foodPartyMenus.MenuPartyMapper;
 import dataAccess.dataMapper.menu.MenuMapper;
 import dataAccess.dataMapper.restaurant.RestaurantMapper;
+import domain.databaseEntity.FoodPartyDAO;
 import domain.databaseEntity.MenuDAO;
 import domain.databaseEntity.RestaurantDAO;
 import domain.entity.*;
 import domain.exceptions.FoodNotExist;
-import domain.exceptions.RestaurantExist;
 import domain.exceptions.RestaurantNotAvailable;
 import domain.exceptions.RestaurantNotFound;
 import domain.repositories.Loghmeh;
@@ -28,6 +31,8 @@ import static java.time.temporal.ChronoUnit.SECONDS;
 public class RestaurantManager {
     private static RestaurantManager instance;
     private static int PERIOD_GET_FOOD_PARTY = 60*30;
+    private static String  restaurantUrl = "http://138.197.181.131:8080/restaurants";
+    private static String  foodPartyUrl = "http://138.197.181.131:8080/foodparty";
 
     private RestaurantManager() {
     }
@@ -39,7 +44,6 @@ public class RestaurantManager {
     }
 
     public void getRestaurantsFromUrl(){
-        String restaurantUrl = "http://138.197.181.131:8080/restaurants";
         System.out.println("\n\n\n#################################");
         System.out.println("start adding new restaurant to database from url");
         try {
@@ -64,8 +68,11 @@ public class RestaurantManager {
             Double new_rest_loc_x = Double.parseDouble(((JSONObject) restaurantInfo.get("location")).get("x").toString());
             Double new_rest_loc_y = Double.parseDouble(((JSONObject) restaurantInfo.get("location")).get("y").toString());
             RestaurantDAO new_rest = new RestaurantDAO(new_rest_id, new_rest_name, new_rest_logo, new_rest_loc_x, new_rest_loc_y);
-            ArrayList<MenuDAO> menusToAddDatabase = new ArrayList<MenuDAO>();
             JSONArray array_menus = (JSONArray) restaurantInfo.get("menu");
+            try {
+                RestaurantMapper.getInstance().insert(new_rest);
+            }catch (SQLException ignored){
+            }
             for (int j = 0; j < array_menus.size(); j++) {
                 JSONObject menuInfo = (JSONObject) array_menus.get(j);
                 String name = menuInfo.get("name").toString();
@@ -73,19 +80,14 @@ public class RestaurantManager {
                 Double popularity = Double.parseDouble(menuInfo.get("popularity").toString());
                 Double price = Double.parseDouble(menuInfo.get("price").toString());
                 String urlImage = menuInfo.get("image").toString();
-                menusToAddDatabase.add(new MenuDAO(new_rest_id, name, description, popularity, price, urlImage));
-            }
-            try {
-                RestaurantMapper.getInstance().insert(new_rest);
-            }catch (SQLException ignored){
-            }
-            for(MenuDAO menuDAO:menusToAddDatabase){
+                MenuDAO menuDAO = new MenuDAO(new_rest_id, name, description, popularity, price, urlImage);
                 try {
                     MenuMapper.getInstance().insert(menuDAO);
                 }catch (SQLException e){
                     continue;
                 }
             }
+
 //            System.out.println("new restaurant:");
 //            System.out.println(new_rest);
 //            for (MenuDAO menuDAO : menusToAddDatabase) {
@@ -94,25 +96,107 @@ public class RestaurantManager {
         }
     }
 
-
-
-
-
-
-    public Restaurant getRestaurantById(String id) throws RestaurantNotFound , RestaurantNotAvailable {
-        Restaurant restaurant;
-        restaurant = find(id);
-        if(restaurant != null) {
-            if (this.restaurantAvailable(restaurant)) {
-                return restaurant;
-            } else {
-                throw new RestaurantNotAvailable();
-            }
-        }
-        else {
-            throw new RestaurantNotFound();
+    public void getFoodPartiesFromUrl(){
+        System.out.println("\n\n###########################################");
+        System.out.println("request for food party adding to database...");
+        JSONArray jsonArray = new JSONArray();
+        try {
+            String jsonParties = Request.get(foodPartyUrl);
+            JSONParser parser = new JSONParser();
+            jsonArray = (JSONArray) parser.parse(jsonParties);
+            this.addFoodPartiesFromJsonArray(jsonArray);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
+
+    public void addFoodPartiesFromJsonArray(JSONArray jsonArray) {
+        MenuPartyMapper.getInstance().makeAllFoodPartyUnavailable(); // make all food party in table unavailable reset it
+        for (int i = 0; i < jsonArray.size(); i++) {
+            JSONObject foodPartyInfo = (JSONObject) jsonArray.get(i);
+            String rest_id = foodPartyInfo.get("id").toString();
+            String rest_name = foodPartyInfo.get("name").toString();
+            String rest_logo = foodPartyInfo.get("logo").toString();
+            Double rest_loc_x = Double.parseDouble(((JSONObject) foodPartyInfo.get("location")).get("x").toString());
+            Double rest_loc_y = Double.parseDouble(((JSONObject) foodPartyInfo.get("location")).get("y").toString());
+            RestaurantDAO new_rest = new RestaurantDAO(rest_id, rest_name, rest_logo, rest_loc_x, rest_loc_y);
+            try {
+                RestaurantMapper.getInstance().insert(new_rest);   //try to add new restaurant in database
+            } catch (SQLException ignored) {
+            }
+            ArrayList<MenuDAO> menusToAddDatabase = new ArrayList<MenuDAO>();
+            JSONArray array_menus = (JSONArray) foodPartyInfo.get("menu");
+            for (int j = 0; j < array_menus.size(); j++) {
+                JSONObject menuInfo = (JSONObject) array_menus.get(j);
+                String name = menuInfo.get("name").toString();
+                String description = menuInfo.get("description").toString();
+                Double popularity = Double.parseDouble(menuInfo.get("popularity").toString());
+                Double oldPrice = Double.parseDouble(menuInfo.get("oldPrice").toString());
+                String urlImage = menuInfo.get("image").toString();
+                Double newPrice = Double.parseDouble(menuInfo.get("price").toString());
+                int count = Integer.parseInt(menuInfo.get("count").toString());
+                MenuDAO menuDAO = new MenuDAO(rest_id, name, description, popularity, oldPrice, urlImage);
+                try {
+                    MenuMapper.getInstance().insert(menuDAO);  // food party menu actually is menu so first add it as menu
+                }catch (SQLException e) {
+                }
+                try {
+                int menuId = MenuMapper.getInstance().getMenuId(name,rest_id);
+                FoodPartyDAO foodPartyDAO = new FoodPartyDAO(menuId, count, newPrice);
+                MenuPartyMapper.getInstance().insert(foodPartyDAO);
+                }catch (SQLException e) {
+                }
+            }
+        }
+        Loghmeh.getInstance().setStartGetFoodParty(LocalTime.now());
+        System.out.println("finish updating food party->->->->" + jsonArray.size());
+        System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n\n");
+    }
+
+    public ArrayList<RestaurantInfoDTO> getAvailableRestaurants() throws SQLException{
+        ArrayList<RestaurantDAO> results = RestaurantMapper.getInstance().findAvailableRestaurants();
+        ArrayList<RestaurantInfoDTO> restaurants = new ArrayList<>();
+        for (RestaurantDAO restaurantDAO:results) {
+            RestaurantInfoDTO restaurantInfoDTO = new RestaurantInfoDTO(restaurantDAO.getRestaurantId(),
+                    restaurantDAO.getRestaurantName(),
+                    restaurantDAO.getLogoUrl());
+            restaurantInfoDTO.setEstimateDelivery(this.estimateTimeForRestaurant(
+                    restaurantDAO.getLocation_X(), restaurantDAO.getLocation_Y()));
+            restaurants.add(restaurantInfoDTO);
+        }
+        return restaurants;
+    }
+
+    public RestaurantMenuDTO getRestaurantById(String id) throws RestaurantNotFound , RestaurantNotAvailable {
+        return null;
+    }
+
+    public Long getRemainingTimeFoodParty(){
+        Long dif = Loghmeh.getInstance().getStartGetFoodParty().until(LocalTime.now(),SECONDS);
+        return dif;
+    }
+
+
+    public String estimateTimeForRestaurant(Double loc_x_rest, Double loc_y_rest){
+        int time_find_delivery = 60;
+        int average_velocity = 5;
+        double distance_from_user =  loc_x_rest*loc_x_rest + loc_y_rest*loc_y_rest;
+        int total_time = time_find_delivery + (int)((1.5)*(distance_from_user/average_velocity));
+        return LocalTime.MIN.plusSeconds(total_time).toString();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     private  Restaurant find(String id){
         ArrayList<Restaurant> restaurants = Loghmeh.getInstance().getRestaurants();
@@ -137,16 +221,7 @@ public class RestaurantManager {
         return (restaurant.distanceFromUser()<=170);
     }
 
-    public  ArrayList<Restaurant> getAvailableRestaurants(User user){
-        ArrayList<Restaurant> restaurants = this.getAllRestaurants();
-        ArrayList<Restaurant> results = new ArrayList<Restaurant>();
-        for(Restaurant restaurant:restaurants){
-            if(this.restaurantAvailable(restaurant)){
-                results.add(restaurant);
-            }
-        }
-        return results;
-    }
+
 
 
     public Menu findMenuInRestaurantWithFoodName(Restaurant restaurant , String foodName)throws FoodNotExist{
@@ -232,7 +307,7 @@ public class RestaurantManager {
 
 
     public  JSONArray requestFoodPartApiGetList(){
-        System.out.println("#####################################################");
+        System.out.println("\n\n$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
         System.out.println("request for food party:...");
         String foodPartyUrl = "http://138.197.181.131:8080/foodparty";
         JSONArray jsonArray = new JSONArray();
@@ -240,7 +315,7 @@ public class RestaurantManager {
             String jsonParties = Request.get(foodPartyUrl);
             JSONParser parser = new JSONParser();
             jsonArray = (JSONArray) parser.parse(jsonParties);
-            System.out.println("get food party triggered by scheduler");
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -289,7 +364,7 @@ public class RestaurantManager {
         this.setFoodParties(foodParties);
         this.setTimerForFoodParty();
         System.out.println("finish updating food party");
-        System.out.println("###########################\n\n\n");
+        System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n\n");
 
     }
 
@@ -338,21 +413,10 @@ public class RestaurantManager {
     }
 
 
-    public String estimateTime(String restaurantId){
-        Restaurant restaurant = getRestaurantWithId(restaurantId);
-        int time_find_delivery = 60;
-        int average_velocity = 5;
-        double distance_from_user =  restaurant.distanceFromUser();
-        int total_time = time_find_delivery + (int)((1.5)*(distance_from_user/average_velocity));
-        return LocalTime.MIN.plusSeconds(total_time).toString();
-    }
 
 
-    public Long getRemainingTimeFoodParty(){
-        ArrayList<FoodParty> foodParties = this.getFoodParties();
-        Long dif = foodParties.get(0).getStartTime().until(LocalTime.now(),SECONDS);
-        return dif;
-    }
+
+
 
 
 }

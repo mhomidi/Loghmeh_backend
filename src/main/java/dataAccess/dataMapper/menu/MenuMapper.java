@@ -85,11 +85,11 @@ public class MenuMapper extends Mapper<MenuDAO, String> implements IMenuMapper {
     }
 
 
-    public boolean insert(MenuDAO restaurant) throws SQLException {
+    public boolean insert(MenuDAO menu) throws SQLException {
         boolean result = true;
         Connection con = ConnectionPool.getConnection();
         PreparedStatement preparedStatement = con.prepareStatement(getInsertStatement());
-        fillInsertValues(preparedStatement, restaurant);
+        fillInsertValues(preparedStatement, menu);
         try {
             result &= preparedStatement.execute();
         } catch (Exception e) {
@@ -101,6 +101,36 @@ public class MenuMapper extends Mapper<MenuDAO, String> implements IMenuMapper {
         preparedStatement.close();
         con.close();
         return result;
+    }
+
+
+    public int getMenuId(String foodName, String restaurantId)throws SQLException {
+        try {
+            Connection con = ConnectionPool.getConnection();
+            PreparedStatement preparedStatement = con.prepareStatement(
+                    "SELECT M.MenuId " +
+                            "FROM Menus M " +
+                            "WHERE M.restaurantId=? AND M.foodName=?");
+            preparedStatement.setString(1, restaurantId);
+            preparedStatement.setString(2, foodName);
+            ResultSet resultSet;
+
+            resultSet = preparedStatement.executeQuery();
+            if (!resultSet.next()) {
+                resultSet.close();
+                preparedStatement.close();
+                con.close();
+                return -1;
+            }
+            int menuId = resultSet.getInt(1);
+            resultSet.close();
+            preparedStatement.close();
+            con.close();
+            return menuId;
+        } catch (SQLException ex) {
+            System.out.println("error in MenuMapper.getMenuId");
+            throw ex;
+        }
     }
 
 

@@ -1,8 +1,8 @@
-package controller.restaurant.response;
+package domain.FrontEntity;
 
 
 
-public class FoodPartyResponse {
+public class FoodPartyDTO {
     private String restaurantId;
     private String restaurantName;
     private String restaurantLogo;
@@ -15,9 +15,9 @@ public class FoodPartyResponse {
     private int menuCount;
 
 
-    public FoodPartyResponse(String restaurantId , String restaurantName , String restaurantLogo ,
-                             String menuName, String menuDescription, Double menuNewPrice , Double menuOldPrice ,
-                             String menuUrlImage , Double menuPopularity , int menuCount ) {
+    public FoodPartyDTO(String restaurantId , String restaurantName , String restaurantLogo ,
+                        String menuName, String menuDescription, Double menuNewPrice , Double menuOldPrice ,
+                        String menuUrlImage , Double menuPopularity , int menuCount ) {
         this.restaurantId = restaurantId;
         this.restaurantName = restaurantName;
         this.restaurantLogo = restaurantLogo;

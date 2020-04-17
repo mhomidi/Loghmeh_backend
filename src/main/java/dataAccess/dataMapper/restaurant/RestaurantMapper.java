@@ -61,7 +61,12 @@ public class RestaurantMapper extends Mapper<RestaurantDAO, String> implements I
 
     @Override
     protected RestaurantDAO convertResultSetToDomainModel(ResultSet rs) throws SQLException {
-        return null;
+        String restaurantId = rs.getString(1);
+        String restaurantName = rs.getString(2);
+        String logo = rs.getString(3);
+        Double loc_x = rs.getDouble(4);
+        Double loc_y = rs.getDouble(5);
+        return new RestaurantDAO(restaurantId, restaurantName, logo, loc_x, loc_y);
     }
 
     @Override
@@ -98,6 +103,22 @@ public class RestaurantMapper extends Mapper<RestaurantDAO, String> implements I
     }
 
 
+    public ArrayList<RestaurantDAO> findAvailableRestaurants() throws SQLException{
+        Connection con = ConnectionPool.getConnection();
+        PreparedStatement preparedStatement = con.prepareStatement("SELECT DISTINCT *" +
+                "FROM Restaurants " +
+                "WHERE location_X*location_X + location_Y*location_Y<=28900");
+        ResultSet resultSet;
+        resultSet =preparedStatement.executeQuery();
+        ArrayList<RestaurantDAO> result = new ArrayList<>();
+        while(resultSet.next())
+        {
+            result.add(convertResultSetToDomainModel(resultSet));
+        }
+        preparedStatement.close();
+        con.close();
+        return result;
+    }
 
 
 

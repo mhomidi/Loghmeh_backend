@@ -8,8 +8,8 @@ import domain.exceptions.RestaurantNotAvailable;
 import domain.exceptions.RestaurantNotFound;
 import domain.exceptions.UserNotFound;
 
-import services.RestaurantService;
-import services.UserService;
+import domain.manager.RestaurantManager;
+import domain.manager.UserManager;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -21,9 +21,9 @@ public class RestaurantController {
     public ArrayList<SingleRestaurantInfoResponse> getAllRestaurants( ) {
         System.out.println("return all restaurants from server");
         ArrayList<SingleRestaurantInfoResponse> result = new ArrayList<SingleRestaurantInfoResponse>();
-        for(Restaurant restaurant:RestaurantService.getInstance().getAllRestaurants()){
+        for(Restaurant restaurant: RestaurantManager.getInstance().getAllRestaurants()){
             result.add(new SingleRestaurantInfoResponse(restaurant ,
-                    RestaurantService.getInstance().estimateTime(restaurant.getId())));
+                    RestaurantManager.getInstance().estimateTime(restaurant.getId())));
         }
         return result;
     }
@@ -33,9 +33,9 @@ public class RestaurantController {
             @RequestParam("username") String username)throws UserNotFound{
         ArrayList<SingleRestaurantInfoResponse> result = new ArrayList<SingleRestaurantInfoResponse>();
         System.out.println("return Available restaurants");
-        for(Restaurant restaurant:RestaurantService.getInstance().getAvailableRestaurants(UserService.getUserByID(username))){
+        for(Restaurant restaurant: RestaurantManager.getInstance().getAvailableRestaurants(UserManager.getUserByID(username))){
             result.add(new SingleRestaurantInfoResponse(restaurant,
-                    RestaurantService.getInstance().estimateTime(restaurant.getId())));
+                    RestaurantManager.getInstance().estimateTime(restaurant.getId())));
         }
         return result;
     }
@@ -44,7 +44,7 @@ public class RestaurantController {
     public ArrayList<FoodPartyResponse> getAllFoodParties( ) {
         System.out.println("return all food parties from server");
         ArrayList<FoodPartyResponse> result = new ArrayList<FoodPartyResponse>();
-        for(FoodParty foodParty: RestaurantService.getInstance().getFoodParties()){
+        for(FoodParty foodParty: RestaurantManager.getInstance().getFoodParties()){
             for (MenuParty menu: foodParty.getMenus()){
                 result.add(new FoodPartyResponse(foodParty.getRestaurantId() , foodParty.getRestaurantName(),
                         foodParty.getRestaurantLogo(), menu.getName(), menu.getDescription(), menu.getNewPrice(),
@@ -58,15 +58,15 @@ public class RestaurantController {
     @RequestMapping(value = "/restaurants/{id}", method = RequestMethod.GET)
     public SingleRestaurantInfoResponse getRestaurant(@PathVariable(value = "id") String id)
             throws RestaurantNotFound , RestaurantNotAvailable {
-        return new SingleRestaurantInfoResponse(RestaurantService.getInstance().getRestaurantById(id) ,
-                RestaurantService.getInstance().estimateTime(id));
+        return new SingleRestaurantInfoResponse(RestaurantManager.getInstance().getRestaurantById(id) ,
+                RestaurantManager.getInstance().estimateTime(id));
     }
 
 
     @RequestMapping(value = "/restaurants/foodParty_start_time", method = RequestMethod.GET)
     public Long getFoodPartyRemainingTime() {
         System.out.println("hereeeee in getting time");
-        Long res = RestaurantService.getInstance().getRemainingTimeFoodParty();
+        Long res = RestaurantManager.getInstance().getRemainingTimeFoodParty();
         System.out.println(res);
         return res;
     }

@@ -1,5 +1,8 @@
-package services;
+package domain.manager;
 
+import dataAccess.dataMapper.delivery.DeliveryMapper;
+import dataAccess.dataMapper.restaurant.RestaurantMapper;
+import domain.databaseEntity.DeliveryDAO;
 import domain.entity.*;
 import domain.exceptions.RestaurantNotAvailable;
 import domain.exceptions.RestaurantNotFound;
@@ -10,24 +13,61 @@ import org.json.simple.parser.JSONParser;
 import tools.Request;
 import tools.Utility;
 
+import java.sql.SQLException;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DeliveryServices {
+public class DeliveryManager {
 
-    private static DeliveryServices instance;
+    private static DeliveryManager instance;
+    private static String deliveryUrl = "http://138.197.181.131:8080/deliveries";
 
 
-    private DeliveryServices() {
+    private DeliveryManager() {
     }
 
-    public static DeliveryServices getInstance() {
+    public static DeliveryManager getInstance() {
         if (instance == null) {
-            instance = new DeliveryServices();
+            instance = new DeliveryManager();
         }
         return instance;
+    }
+
+
+    public void getDeliveryFromUrl(){
+        System.out.println("\n\n\n#########################################");
+        System.out.println("request to get delivery adding to database");
+        JSONArray jsonArray = new JSONArray();
+        try {
+            String jsonDeliveries = Request.get(deliveryUrl);
+            JSONParser parser = new JSONParser();
+            jsonArray = (JSONArray) parser.parse(jsonDeliveries);
+            this.addDeliveryFromJSONArray(jsonArray);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void addDeliveryFromJSONArray(JSONArray jsonArray){
+        DeliveryMapper.getInstance().makeAllDeliveryInActive();
+        for(int i=0;i<jsonArray.size();i++){
+            JSONObject deliveryInfo = (JSONObject) jsonArray.get(i);
+            String id = deliveryInfo.get("id").toString();
+            Double velocity = Double.parseDouble(deliveryInfo.get("velocity").toString());
+            Double delivery_loc_x = Double.parseDouble(((JSONObject) deliveryInfo.get("location")).get("x").toString());
+            Double delivery_loc_y = Double.parseDouble(((JSONObject) deliveryInfo.get("location")).get("y").toString());
+            DeliveryDAO new_delivery = new DeliveryDAO(id, velocity, delivery_loc_x, delivery_loc_y);
+            try {
+                DeliveryMapper.getInstance().insert(new_delivery);
+            }catch (SQLException ignored){
+            }
+            System.out.println(jsonArray.size());
+            System.out.println(new_delivery);
+        }
+        System.out.println("adding new deliveries successfully done.");
+        System.out.println("#########################################\n\n\n");
     }
 
 
@@ -66,12 +106,12 @@ public class DeliveryServices {
             }
         }
         System.out.println("adding new deliveries successfully done.");
-        System.out.println("#########################################");
+        System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
     }
 
 
     public  JSONArray requestDeliveryApiGetList() {
-        System.out.println("#########################################");
+        System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
         System.out.println("request to get delivery...");
         String deliveryUrl = "http://138.197.181.131:8080/deliveries";
         JSONArray jsonArray = new JSONArray();
@@ -121,7 +161,7 @@ public class DeliveryServices {
             String restaurantName = order.getRestaurantName();
             System.out.println(restaurantId);
             System.out.println(restaurantName);
-            Restaurant restaurant = RestaurantService.getInstance().getRestaurantWithId(restaurantId);
+            Restaurant restaurant = RestaurantManager.getInstance().getRestaurantWithId(restaurantId);
             if(restaurant == null){
                 System.out.println("not finding restauarnt so return null");
                 return null;

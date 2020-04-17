@@ -1,11 +1,11 @@
 package dataAccess.dataMapper.user;
 
 import dataAccess.dataMapper.IMapper;
-import domain.entity.User;
+import domain.databaseEntity.UserDAO;
 
 import java.sql.SQLException;
 
 
-public interface IUserMapper extends IMapper<User, String> {
-	boolean insert(User user) throws SQLException;
+public interface IUserMapper extends IMapper<UserDAO, String> {
+	boolean insert(UserDAO user) throws SQLException;
 }

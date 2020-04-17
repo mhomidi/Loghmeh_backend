@@ -1,7 +1,8 @@
-package services;
+package domain.manager;
 
 import com.google.common.hash.Hashing;
 
+import domain.databaseEntity.UserDAO;
 import domain.entity.Menu;
 import domain.entity.Restaurant;
 import domain.exceptions.*;
@@ -10,34 +11,32 @@ import domain.entity.DeliveryStatus;
 import domain.repositories.Loghmeh;
 import domain.entity.User;
 import models.data.user.mapper.UserMapper;
+import services.Authentication;
 
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
-public class UserService {
+public class UserManager {
 
     public static String login(String username, String password) throws LoginFailure {
-        System.out.println("Userservice login method validate user in database");
         password = Hashing.sha256().hashString(password, StandardCharsets.UTF_8).toString();
-
-        //not validating in database
-        if (!UserMapper.getInstance().validateUser(username,password)) {
+        if (!dataAccess.dataMapper.user.UserMapper.getInstance().validateUser(username,password)) {
             throw new LoginFailure();
         }
         return Authentication.createToken(username);
     }
 
-    public static void registerUser(User user) throws InvalidUser, UserAlreadyExists {
-        if(user.getUsername().equals("") || user.getUserFirstName().equals("") ||
-                user.getUserLastName().equals("")
-                || user.getEmail().equals("") || user.getUserPassword().equals(""))
+    public static void registerUser(UserDAO user) throws InvalidUser, UserAlreadyExists {
+        if(user.getUsername().equals("") || user.getFirstName().equals("") ||
+                user.getLastName().equals("")
+                || user.getEmail().equals("") || user.getPassword().equals(""))
             throw new InvalidUser();
-        user.setUserPassword(
-                Hashing.sha256().hashString(user.getUserPassword(), StandardCharsets.UTF_8)
+        user.setPassword(
+                Hashing.sha256().hashString(user.getPassword(), StandardCharsets.UTF_8)
                         .toString()
         );
-        UserMapper.getInstance().registerNewUser(user);
+        dataAccess.dataMapper.user.UserMapper.getInstance().registerUser(user);
     }
 
     public static User getUserByID(String userId) throws UserNotFound {
@@ -78,11 +77,11 @@ public class UserService {
         Double moneyToPay = user.moneyToPayForOrder();
 
         if (user.isChosenFoodParty() &&
-                !RestaurantService.getInstance().foodPartyTimeValidationForFinalizing(user)) {
+                !RestaurantManager.getInstance().foodPartyTimeValidationForFinalizing(user)) {
             throw new TimeValidationErrorFoodParty();
         }
 
-        if (!RestaurantService.getInstance().foodPartyCountValidationForFinalizing(user) ){
+        if (!RestaurantManager.getInstance().foodPartyCountValidationForFinalizing(user) ){
             throw  new CountValidationErrorFoodParty();
         }
         if (!foodToBuy) {
@@ -94,8 +93,8 @@ public class UserService {
         System.out.println("User finalize order!");
         user.getCurrentOrder().setStatus(DeliveryStatus.FINDING_DELIVERY); //change status of order to find delivery
         System.out.println("here before " + user.getCurrentOrder().getRestaurantId());
-        DeliveryServices.getInstance().DeliveryUserOrder(user);
-        RestaurantService.getInstance().changeCountOfPartyFoodUserBuy(user);
+        DeliveryManager.getInstance().DeliveryUserOrder(user);
+        RestaurantManager.getInstance().changeCountOfPartyFoodUserBuy(user);
         user.finalizeOrder(moneyToPay);
         System.out.println("return from finalize order in userservice");
 

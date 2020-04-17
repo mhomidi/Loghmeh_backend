@@ -3,14 +3,14 @@ package dataAccess.dataMapper.restaurant;
 
 import dataAccess.ConnectionPool;
 import dataAccess.dataMapper.Mapper;
-import domain.entity.Restaurant;
+import domain.databaseEntity.RestaurantDAO;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class RestaurantMapper extends Mapper<Restaurant, String> implements IRestaurantMapper {
+public class RestaurantMapper extends Mapper<RestaurantDAO, String> implements IRestaurantMapper {
 
     private static RestaurantMapper instance;
 
@@ -55,22 +55,46 @@ public class RestaurantMapper extends Mapper<Restaurant, String> implements IRes
 
     @Override
     protected String getInsertStatement() {
+        return "INSERT INTO Restaurants (restaurantId, restaurantName,  logoUrl, location_X, location_Y) " +
+                "VALUES(?, ?, ?, ?, ?)";
+    }
+
+    @Override
+    protected RestaurantDAO convertResultSetToDomainModel(ResultSet rs) throws SQLException {
         return null;
     }
 
     @Override
-    protected Restaurant convertResultSetToDomainModel(ResultSet rs) throws SQLException {
+    protected ArrayList<RestaurantDAO> convertResultSetToDomainModelList(ResultSet rs) throws SQLException {
         return null;
     }
 
     @Override
-    protected ArrayList<Restaurant> convertResultSetToDomainModelList(ResultSet rs) throws SQLException {
-        return null;
+    protected void fillInsertValues(PreparedStatement st, RestaurantDAO restaurant) throws SQLException {
+        st.setString(1, restaurant.getRestaurantId());
+        st.setString(2, restaurant.getRestaurantName());
+        st.setString(3 , restaurant.getLogoUrl());
+        st.setDouble(4, restaurant.getLocation_X());
+        st.setDouble(5,restaurant.getLocation_Y());
     }
 
-    @Override
-    protected void fillInsertValues(PreparedStatement st, Restaurant restaurant) throws SQLException {
 
+    public boolean insert(RestaurantDAO restaurant) throws SQLException {
+        boolean result = true;
+        Connection con = ConnectionPool.getConnection();
+        PreparedStatement preparedStatement = con.prepareStatement(getInsertStatement());
+        fillInsertValues(preparedStatement, restaurant);
+        try {
+            result &= preparedStatement.execute();
+        } catch (Exception e) {
+            preparedStatement.close();
+            con.close();
+            e.printStackTrace();
+            return false;
+        }
+        preparedStatement.close();
+        con.close();
+        return result;
     }
 
 

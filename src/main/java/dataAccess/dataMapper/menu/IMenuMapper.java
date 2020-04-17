@@ -1,11 +1,12 @@
 package dataAccess.dataMapper.menu;
 
 import dataAccess.dataMapper.IMapper;
-import domain.entity.Menu;
+import domain.databaseEntity.MenuDAO;
+
 
 import java.sql.SQLException;
 
 
-public interface IMenuMapper extends IMapper<Menu, String> {
-	boolean insert(Menu menu) throws SQLException;
+public interface IMenuMapper extends IMapper<MenuDAO, String> {
+	boolean insert(MenuDAO menu) throws SQLException;
 }

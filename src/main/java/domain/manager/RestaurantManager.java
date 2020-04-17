@@ -1,7 +1,12 @@
-package services;
+package domain.manager;
 
+import dataAccess.dataMapper.menu.MenuMapper;
+import dataAccess.dataMapper.restaurant.RestaurantMapper;
+import domain.databaseEntity.MenuDAO;
+import domain.databaseEntity.RestaurantDAO;
 import domain.entity.*;
 import domain.exceptions.FoodNotExist;
+import domain.exceptions.RestaurantExist;
 import domain.exceptions.RestaurantNotAvailable;
 import domain.exceptions.RestaurantNotFound;
 import domain.repositories.Loghmeh;
@@ -12,6 +17,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import tools.Request;
 
+import java.sql.SQLException;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Map;
@@ -19,20 +25,75 @@ import java.util.Map;
 import static java.time.temporal.ChronoUnit.SECONDS;
 
 
-public class RestaurantService {
-    private static RestaurantService instance;
+public class RestaurantManager {
+    private static RestaurantManager instance;
     private static int PERIOD_GET_FOOD_PARTY = 60*30;
 
-
-    private RestaurantService() {
+    private RestaurantManager() {
     }
-
-    public static RestaurantService getInstance() {
+    public static RestaurantManager getInstance() {
         if (instance == null) {
-            instance = new RestaurantService();
+            instance = new RestaurantManager();
         }
         return instance;
     }
+
+    public void getRestaurantsFromUrl(){
+        String restaurantUrl = "http://138.197.181.131:8080/restaurants";
+        System.out.println("\n\n\n#################################");
+        System.out.println("start adding new restaurant to database from url");
+        try {
+            String jsonRestaurants = Request.get(restaurantUrl);
+            JSONParser parser = new JSONParser();
+            JSONArray jsonArray = new JSONArray();
+            jsonArray = (JSONArray) parser.parse(jsonRestaurants);
+            this.addRestaurantFromJSONArray(jsonArray);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println("finish adding restaurant");
+        System.out.println("#####################################\n\n\n");
+    }
+
+    public void addRestaurantFromJSONArray(JSONArray jsonArray) {
+        for (int i = 0; i < jsonArray.size(); i++) {
+            JSONObject restaurantInfo = (JSONObject) jsonArray.get(i);
+            String new_rest_name = restaurantInfo.get("name").toString();
+            String new_rest_id = restaurantInfo.get("id").toString();
+            String new_rest_logo = restaurantInfo.get("logo").toString();
+            Double new_rest_loc_x = Double.parseDouble(((JSONObject) restaurantInfo.get("location")).get("x").toString());
+            Double new_rest_loc_y = Double.parseDouble(((JSONObject) restaurantInfo.get("location")).get("y").toString());
+            RestaurantDAO new_rest = new RestaurantDAO(new_rest_id, new_rest_name, new_rest_logo, new_rest_loc_x, new_rest_loc_y);
+            ArrayList<MenuDAO> menusToAddDatabase = new ArrayList<MenuDAO>();
+            JSONArray array_menus = (JSONArray) restaurantInfo.get("menu");
+            for (int j = 0; j < array_menus.size(); j++) {
+                JSONObject menuInfo = (JSONObject) array_menus.get(j);
+                String name = menuInfo.get("name").toString();
+                String description = menuInfo.get("description").toString();
+                Double popularity = Double.parseDouble(menuInfo.get("popularity").toString());
+                Double price = Double.parseDouble(menuInfo.get("price").toString());
+                String urlImage = menuInfo.get("image").toString();
+                menusToAddDatabase.add(new MenuDAO(new_rest_id, name, description, popularity, price, urlImage));
+            }
+            try {
+                RestaurantMapper.getInstance().insert(new_rest);
+            }catch (SQLException ignored){
+            }
+            for(MenuDAO menuDAO:menusToAddDatabase){
+                try {
+                    MenuMapper.getInstance().insert(menuDAO);
+                }catch (SQLException e){
+                    continue;
+                }
+            }
+//            System.out.println("new restaurant:");
+//            System.out.println(new_rest);
+//            for (MenuDAO menuDAO : menusToAddDatabase) {
+//                System.out.println(menuDAO);
+//            }
+        }
+    }
+
 
 
 

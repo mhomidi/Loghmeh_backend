@@ -7,6 +7,7 @@ import controller.user.responses.BuyBasketResponse;
 import controller.user.responses.SingleUserInfoResponse;
 import controller.user.responses.TokenResponse;
 import controller.user.responses.UserOrdersResponse;
+import domain.databaseEntity.UserDAO;
 import domain.entity.FoodParty;
 import domain.entity.Menu;
 import domain.entity.MenuParty;
@@ -14,8 +15,8 @@ import domain.entity.Restaurant;
 import domain.exceptions.*;
 
 import domain.entity.User;
-import services.RestaurantService;
-import services.UserService;
+import domain.manager.RestaurantManager;
+import domain.manager.UserManager;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +30,7 @@ public class UserController {
         try{
             String loginInfo ="Login:" + request.getUsername() + " " + request.getPassword();
             System.out.println(loginInfo);
-            String token =  UserService.login(request.getUsername(), request.getPassword());
+            String token =  UserManager.login(request.getUsername(), request.getPassword());
             loginInfo += " user found token is " + token;
             System.out.println(loginInfo);
             return  ResponseEntity.status(HttpStatus.OK).body(new TokenResponse(token,request.getUsername()));
@@ -37,26 +38,21 @@ public class UserController {
             Message m = new Message(e.getMessage());
             return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
         }
-
-
     }
 
     @RequestMapping(value = "/signup", method = RequestMethod.POST)
-    public ResponseEntity<?>  signup(@RequestBody final SignupRequest request)  {
+    public ResponseEntity<?> signup(@RequestBody final SignupRequest request)  {
         try{
-            String signupInfo ="sign up:" + request.getFirstName() + " " +request.getLastName() +
-                    " " + request.getUsername() +" " + request.getPassword() +" " +
-                    request.getEmail() +" " + request.getPhone();
-            System.out.println(signupInfo);
-            UserService.registerUser(
-                    new User(request.getFirstName(),
+            System.out.println(request.getPhone());
+            UserManager.registerUser(
+                    new UserDAO(request.getFirstName(),
                             request.getLastName(),
                             request.getUsername(),
                             request.getPassword(),
-                            request.getPhone(),
-                            request.getEmail()));
+                            request.getEmail(),
+                            request.getPhone(), 0.0));
 
-            String token = UserService.login(request.getUsername(), request.getPassword());
+            String token = UserManager.login(request.getUsername(), request.getPassword());
             return  ResponseEntity.status(HttpStatus.OK).body(new TokenResponse(token , request.getUsername()));
         }catch (UserAlreadyExists e){
             Message m = new Message(e.getMessage());
@@ -77,7 +73,7 @@ public class UserController {
         System.out.println("user name want to add money: " + username +" " +
                 request.getMoney());
         try {
-            UserService.addCredit(username,Double.parseDouble(request.getMoney()));
+            UserManager.addCredit(username,Double.parseDouble(request.getMoney()));
             Message m = new Message("مبلغ با موفقیت به حساب کاربر اضافه شد");
             return  ResponseEntity.status(HttpStatus.OK).body(m);
         }catch (UserNotFound e){
@@ -92,7 +88,7 @@ public class UserController {
         System.out.println("server return user info of " + username);
         try{
             return ResponseEntity.status(HttpStatus.OK).body(
-                    new SingleUserInfoResponse(UserService.getUserByID(username)));
+                    new SingleUserInfoResponse(UserManager.getUserByID(username)));
         }catch (UserNotFound e){
             Message m = new Message(e.getMessage());
             return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
@@ -110,11 +106,11 @@ public class UserController {
             String info = "user " + username +" want to add " + Integer.toString(count) + " " +
                     foodName + " from restaurant " + restaurantId;
             System.out.println(info);
-            User user = UserService.getUserByID(username);
-            Restaurant restaurant = RestaurantService.getInstance().getRestaurantById(restaurantId);
+            User user = UserManager.getUserByID(username);
+            Restaurant restaurant = RestaurantManager.getInstance().getRestaurantById(restaurantId);
             String restaurantName = restaurant.getName();
-            Menu food = RestaurantService.getInstance().findMenuInRestaurantWithFoodName(restaurant , foodName);
-            UserService.addFoodToCart(user,restaurant,food,count);
+            Menu food = RestaurantManager.getInstance().findMenuInRestaurantWithFoodName(restaurant , foodName);
+            UserManager.addFoodToCart(user,restaurant,food,count);
         }catch (BuyFromOtherRestaurant e){
             Message m = new Message(e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(m);
@@ -156,9 +152,9 @@ public class UserController {
             String info = "user " + username + " want to add " + Integer.toString(count) + " " +
                     foodName + " from restaurant " + restaurantId + " food party!!";
             System.out.println(info);
-            User user = UserService.getUserByID(username);
-            Restaurant restaurant = RestaurantService.getInstance().getRestaurantWithId(restaurantId);
-            FoodParty foodParty = RestaurantService.getInstance().findRestaurantInFoodParty(restaurantId);
+            User user = UserManager.getUserByID(username);
+            Restaurant restaurant = RestaurantManager.getInstance().getRestaurantWithId(restaurantId);
+            FoodParty foodParty = RestaurantManager.getInstance().findRestaurantInFoodParty(restaurantId);
 
             if (foodParty == null) {
                 Message m = new Message("غذای مورد نظر در رستوران به عنوان فود پارتی یافت نشد");
@@ -213,7 +209,7 @@ public class UserController {
         String info ="user " + username + "wants to show his/her curr order";
         System.out.println(info);
         try{
-            User user = UserService.getUserByID(username);
+            User user = UserManager.getUserByID(username);
             return ResponseEntity.status(HttpStatus.OK).body(new BuyBasketResponse(user));
         }catch (UserNotFound e){
             Message m = new Message(e.getMessage());
@@ -229,7 +225,7 @@ public class UserController {
             String foodName = request.getFoodName();
             String info ="user " + username + "wants to  increase count of food " + foodName;
             System.out.println(info);
-            User user = UserService.getUserByID(username);
+            User user = UserManager.getUserByID(username);
             user.ModifyCountFoodInCurrOrder(foodName , 1);
             String success = "تعداد غذای"+ " " + foodName + " با موفقیت یکی زیاد شد";
             System.out.println(success);
@@ -252,7 +248,7 @@ public class UserController {
             String foodName = request.getFoodName();
             String info ="user " + username + "wants to  decrease count of food " + foodName;
             System.out.println(info);
-            User user = UserService.getUserByID(username);
+            User user = UserManager.getUserByID(username);
             user.ModifyCountFoodInCurrOrder(foodName,-1);
             String success = "تعداد غذای"+ " " + foodName + " با موفقیت یکی کم شد";
             System.out.println(success);
@@ -275,8 +271,8 @@ public class UserController {
         try {
             String info = "user " + username + " wants to finalize his/her order";
             System.out.println(info);
-            User user = UserService.getUserByID(username);
-            UserService.finalizeOrder(user);
+            User user = UserManager.getUserByID(username);
+            UserManager.finalizeOrder(user);
         }
         catch (UserNotFound e){
             Message m = new Message(e.getMessage());
@@ -320,7 +316,7 @@ public class UserController {
         try {
             String info = "user " + username + " wants to get all orders info his/her order";
             System.out.println(info);
-            User user = UserService.getUserByID(username);
+            User user = UserManager.getUserByID(username);
             System.out.println(user);
             return  ResponseEntity.status(HttpStatus.OK).body(new UserOrdersResponse(user));
         }

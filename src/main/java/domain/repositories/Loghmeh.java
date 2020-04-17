@@ -13,8 +13,8 @@ import domain.entity.FoodParty;
 import domain.entity.Restaurant;
 import domain.entity.User;
 import domain.exceptions.RestaurantExist;
+import domain.manager.RestaurantManager;
 import tools.Request;
-import tools.Utility;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -85,23 +85,41 @@ public class Loghmeh {
     public static Loghmeh getInstance() {
         if (instance == null) {
             instance = new Loghmeh();
-            String restaurantUrl = "http://138.197.181.131:8080/restaurants";
-            System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
-            System.out.println("start adding restaurant");
-            try {
-                String jsonRestaurants = Request.get(restaurantUrl);
-                JSONParser parser = new JSONParser();
-                JSONArray jsonArray = new JSONArray();
-                jsonArray = (JSONArray) parser.parse(jsonRestaurants);
-                Utility.addRestaurantFromJSONArray(instance, jsonArray);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            System.out.println("finish adding restaurant");
-            System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n\n\n");
+//            initialize();
         }
         return instance;
     }
+
+
+    public static void initialize(){
+        RestaurantManager.getInstance().getRestaurantsFromUrl();
+        String restaurantUrl = "http://138.197.181.131:8080/restaurants";
+        System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
+        System.out.println("start adding restaurant");
+        try {
+            String jsonRestaurants = Request.get(restaurantUrl);
+            JSONParser parser = new JSONParser();
+            JSONArray jsonArray = new JSONArray();
+            jsonArray = (JSONArray) parser.parse(jsonRestaurants);
+            addRestaurantFromJSONArray(instance, jsonArray);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println("finish adding restaurant");
+        System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n\n\n");
+    }
+
+
+    public static void addRestaurantFromJSONArray(Loghmeh system,JSONArray jsonArray) {
+        for(int i=0;i<jsonArray.size();i++){
+            try{
+                system.addRestaurant((JSONObject)jsonArray.get(i));
+            }catch (RestaurantExist e){
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
 
 
 
@@ -191,7 +209,7 @@ public class Loghmeh {
         }
     }
 
-    public void addRestaurantCommand(JSONObject jsonObject) throws RestaurantExist {
+    public void addRestaurant(JSONObject jsonObject) throws RestaurantExist {
         String new_restaurant_name = jsonObject.get("name").toString();
         String new_restaurant_id = jsonObject.get("id").toString();
         if(isRestaurantExist(new_restaurant_id)){

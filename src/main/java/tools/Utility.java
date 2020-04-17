@@ -13,7 +13,7 @@ public class Utility {
     public static void addRestaurantFromJSONArray(Loghmeh system, JSONArray jsonArray) {
         for(int i=0;i<jsonArray.size();i++){
             try{
-                system.addRestaurantCommand((JSONObject)jsonArray.get(i));
+                system.addRestaurant((JSONObject)jsonArray.get(i));
             }catch (RestaurantExist e){
                 System.out.println(e.getMessage());
             }

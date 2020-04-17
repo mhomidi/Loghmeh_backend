@@ -1,6 +1,7 @@
 package domain.FrontEntity;
 
 public class MenuDTO {
+    private int menuId;
     private String foodName;
     private Double popularity;
     private Double price;
@@ -9,13 +10,23 @@ public class MenuDTO {
     private String restaurantId;
 
 
-    public MenuDTO(String foodName, Double price , Double popularity , String description ,String urlImage ,String restaurantId){
+    public MenuDTO(int menuId,String foodName, Double price , Double popularity , String description ,String urlImage ,String restaurantId){
         this.foodName = foodName;
         this.popularity = popularity;
         this.price = price;
         this.urlImage = urlImage;
         this.description = description;
         this.restaurantId = restaurantId;
+        this.menuId = menuId;
+    }
+
+
+    public int getMenuId() {
+        return menuId;
+    }
+
+    public void setMenuId(int menuId) {
+        this.menuId = menuId;
     }
 
     public void setRestaurantId(String restaurantId) {

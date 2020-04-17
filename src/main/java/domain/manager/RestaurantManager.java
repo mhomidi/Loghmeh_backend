@@ -1,5 +1,6 @@
 package domain.manager;
 
+import domain.FrontEntity.FoodPartyDTO;
 import domain.FrontEntity.RestaurantMenuDTO;
 import domain.FrontEntity.RestaurantInfoDTO;
 import dataAccess.dataMapper.foodPartyMenus.MenuPartyMapper;
@@ -153,7 +154,8 @@ public class RestaurantManager {
         System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n\n");
     }
 
-    public ArrayList<RestaurantInfoDTO> getAvailableRestaurants() throws SQLException{
+    public ArrayList<RestaurantInfoDTO> getAvailableRestaurants(int pageNumber , int size,
+                                                                String searchFoodKey, String searchRestaurantKey) throws SQLException{
         ArrayList<RestaurantDAO> results = RestaurantMapper.getInstance().findAvailableRestaurants();
         ArrayList<RestaurantInfoDTO> restaurants = new ArrayList<>();
         for (RestaurantDAO restaurantDAO:results) {
@@ -167,10 +169,6 @@ public class RestaurantManager {
         return restaurants;
     }
 
-    public RestaurantMenuDTO getRestaurantById(String id) throws RestaurantNotFound , RestaurantNotAvailable {
-        return null;
-    }
-
     public Long getRemainingTimeFoodParty(){
         Long dif = Loghmeh.getInstance().getStartGetFoodParty().until(LocalTime.now(),SECONDS);
         return dif;
@@ -180,9 +178,18 @@ public class RestaurantManager {
     public String estimateTimeForRestaurant(Double loc_x_rest, Double loc_y_rest){
         int time_find_delivery = 60;
         int average_velocity = 5;
-        double distance_from_user =  loc_x_rest*loc_x_rest + loc_y_rest*loc_y_rest;
+        double distance_from_user =  Math.sqrt(loc_x_rest*loc_x_rest + loc_y_rest*loc_y_rest);
         int total_time = time_find_delivery + (int)((1.5)*(distance_from_user/average_velocity));
         return LocalTime.MIN.plusSeconds(total_time).toString();
+    }
+
+    public ArrayList<FoodPartyDTO> getAvailableFoodParties() throws SQLException {
+        return RestaurantMapper.getInstance().findAvailableFoodParties();
+    }
+
+    public RestaurantMenuDTO getRestaurantWithMenusById(String id)
+            throws RestaurantNotFound , RestaurantNotAvailable , SQLException  {
+        return RestaurantMapper.getInstance().getRestaurantWithMenusById(id);
     }
 
 

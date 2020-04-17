@@ -6,6 +6,7 @@ public class FoodPartyDTO {
     private String restaurantId;
     private String restaurantName;
     private String restaurantLogo;
+    private int menuId;
     private String menuName;
     private String menuDescription;
     private Double menuPopularity;
@@ -15,12 +16,13 @@ public class FoodPartyDTO {
     private int menuCount;
 
 
-    public FoodPartyDTO(String restaurantId , String restaurantName , String restaurantLogo ,
+    public FoodPartyDTO(String restaurantId , String restaurantName , String restaurantLogo , int menuId,
                         String menuName, String menuDescription, Double menuNewPrice , Double menuOldPrice ,
                         String menuUrlImage , Double menuPopularity , int menuCount ) {
         this.restaurantId = restaurantId;
         this.restaurantName = restaurantName;
         this.restaurantLogo = restaurantLogo;
+        this.menuId = menuId;
         this.menuName = menuName;
         this.menuDescription = menuDescription;
         this.menuNewPrice = menuNewPrice;
@@ -28,7 +30,15 @@ public class FoodPartyDTO {
         this.menuUrlImage = menuUrlImage;
         this.menuPopularity = menuPopularity;
         this.menuCount = menuCount;
+    }
 
+
+    public void setMenuId(int menuId) {
+        this.menuId = menuId;
+    }
+
+    public int getMenuId() {
+        return menuId;
     }
 
     public Double getMenuNewPrice() {

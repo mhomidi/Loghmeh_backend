@@ -6,7 +6,6 @@ public class RestaurantMenuDTO {
     private String restaurantId;
     private String restaurantName;
     private String logoUrl;
-    private String estimateDelivery;
     private ArrayList<MenuDTO> menus;
 
 
@@ -42,13 +41,6 @@ public class RestaurantMenuDTO {
         this.logoUrl = imageUrl;
     }
 
-    public String getEstimateDelivery() {
-        return estimateDelivery;
-    }
-
-    public void setEstimateDelivery(String estimateDelivery) {
-        this.estimateDelivery = estimateDelivery;
-    }
 
     public ArrayList<MenuDTO> getMenus() {
         return menus;

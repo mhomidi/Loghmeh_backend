@@ -118,11 +118,18 @@ public class RestaurantMapper extends Mapper<RestaurantDAO, String> implements I
                                                              String searchFoodKey, String searchRestaurantKey) throws SQLException{
         Connection con = ConnectionPool.getConnection();
         if (pageNumber == -1){
-            PreparedStatement preparedStatement = con.prepareStatement("SELECT DISTINCT *" +
-                    "FROM Restaurants " +
+            PreparedStatement preparedStatement = con.prepareStatement("SELECT DISTINCT * " +
+                    "FROM Restaurants  " +
                     "WHERE location_X*location_X + location_Y*location_Y<=28900 " +
-                    "AND restaurantName LIKE ?");
+                    "AND restaurantName LIKE  ?" +
+                    "UNION " +
+                    "SELECT R.restaurantId, R.restaurantName , R.logoUrl , R.location_X , R.location_Y " +
+                    "FROM Menus M , Restaurants R " +
+                    "WHERE M.restaurantId = R.restaurantId  AND M.foodName LIKE ? " +
+                    "AND M.menuId not in (SELECT FPM.menuId FROM FoodPartyMenus FPM);");
+
             preparedStatement.setString(1,"%" + searchRestaurantKey + "%");
+            preparedStatement.setString(2,"%" + searchFoodKey + "%");
             ResultSet resultSet;
             resultSet =preparedStatement.executeQuery();
             ArrayList<RestaurantDAO> result = new ArrayList<>();
@@ -135,15 +142,22 @@ public class RestaurantMapper extends Mapper<RestaurantDAO, String> implements I
             return result;
         }
         else {
-            PreparedStatement preparedStatement = con.prepareStatement("SELECT DISTINCT *" +
-                    "FROM Restaurants " +
+            PreparedStatement preparedStatement = con.prepareStatement("SELECT DISTINCT * " +
+                    "FROM Restaurants  " +
                     "WHERE location_X*location_X + location_Y*location_Y<=28900 " +
-                    "AND restaurantName LIKE ? " +
+                    "AND restaurantName LIKE  ?" +
+                    "UNION " +
+                    "SELECT R.restaurantId, R.restaurantName , R.logoUrl , R.location_X , R.location_Y " +
+                    "FROM Menus M , Restaurants R " +
+                    "WHERE M.restaurantId = R.restaurantId  AND M.foodName LIKE ? " +
+                    "AND M.menuId not in (SELECT FPM.menuId FROM FoodPartyMenus FPM) " +
                     "LIMIT ?,?");
-            int offset = size * (pageNumber - 1);
+
             preparedStatement.setString(1,"%" + searchRestaurantKey + "%");
-            preparedStatement.setInt(2, offset);
-            preparedStatement.setInt(3, size);
+            preparedStatement.setString(2,"%" + searchFoodKey + "%");
+            int offset = size * (pageNumber - 1);
+            preparedStatement.setInt(3, offset);
+            preparedStatement.setInt(4, size);
             ResultSet resultSet;
             resultSet =preparedStatement.executeQuery();
             ArrayList<RestaurantDAO> result = new ArrayList<>();

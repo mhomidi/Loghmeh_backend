@@ -3,6 +3,10 @@ package dataAccess.dataMapper.user;
 
 import dataAccess.ConnectionPool;
 import dataAccess.dataMapper.Mapper;
+import domain.FrontEntity.BuyBasketDTO;
+import domain.FrontEntity.FoodInBasketDTO;
+import domain.FrontEntity.MenuDTO;
+import domain.FrontEntity.RestaurantMenuDTO;
 import domain.databaseEntity.UserDAO;
 import domain.exceptions.UserAlreadyExists;
 import domain.exceptions.UserNotFound;
@@ -181,5 +185,27 @@ public class UserMapper extends Mapper<UserDAO, String> implements IUserMapper {
         preparedStatement.executeUpdate();
         preparedStatement.close();
         con.close();
+    }
+
+
+    public BuyBasketDTO getUserCurrBuyBasket(String username)throws SQLException{
+        Connection con = ConnectionPool.getConnection();
+        PreparedStatement preparedStatement = con.prepareStatement(
+                "select Orders.orderId , OrderMenu.menuId , OrderMenu.countFood, OrderMenu.isFoodParty\n" +
+                        "from Orders , OrderMenu\n" +
+                        "where Orders.orderId = OrderMenu.orderId and Orders.status = ? and Orders.username = ?");
+        preparedStatement.setInt(1,1);
+        preparedStatement.setString(2,username);
+        ResultSet resultSet;
+        resultSet = preparedStatement.executeQuery();
+        BuyBasketDTO buyBasketDTO = new BuyBasketDTO(username);
+        while(resultSet.next()) {
+
+
+        }
+        resultSet.close();
+        preparedStatement.close();
+        con.close();
+        return buyBasketDTO;
     }
 }

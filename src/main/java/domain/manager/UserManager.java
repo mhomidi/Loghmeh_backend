@@ -69,7 +69,7 @@ public class UserManager {
     }
 
     public void addFoodToCart(String username, String restaurantId,
-            int menuId, String foodName, int foodCount)throws BuyFromOtherRestaurant ,SQLException , NoCurrOrder{
+            int menuId, String foodName, Double price, int foodCount)throws BuyFromOtherRestaurant ,SQLException , NoCurrOrder{
         if (this.checkUserStartChoosingFoodInCurrOrder(username)) {
             System.out.println("user " + username + " start new order");
             //add new tuple to orders table it means user start new order from restaurantId
@@ -77,7 +77,8 @@ public class UserManager {
             OrdersMapper.getInstance().insert(new OrdersDAO(username,restaurantId));
             //after adding new tuple to orders table just need to add new tuple to order menus table
             int orderId = OrdersMapper.getInstance().findOrderIdOfUserCurrOrder(username);
-            OrderMenuMapper.getInstance().insert(new OrderMenuDAO(orderId, menuId, foodCount, false));
+            System.out.println("curr order id is " + Integer.toString(orderId));
+            OrderMenuMapper.getInstance().insert(new OrderMenuDAO(orderId, menuId, foodName, price,foodCount, false));
             return;
         }
         else if(this.checkUserIsBuyFromOtherRestaurant(username, restaurantId)){
@@ -89,7 +90,7 @@ public class UserManager {
             // just update order menu table if menuId
             int orderId = OrdersMapper.getInstance().findOrderIdOfUserCurrOrder(username);
             System.out.println("user not start order and restaurant is same" + Integer.toString(orderId));
-            OrderMenuMapper.getInstance().InsertOrUpdateCountFood(orderId, menuId, foodCount, false);
+            OrderMenuMapper.getInstance().InsertOrUpdateCountFood(orderId, menuId, foodName, price, foodCount, false);
             return;
         }
     }
@@ -105,7 +106,8 @@ public class UserManager {
        return !RestaurantIdInCurrOrder.equals(restaurantId);
     }
 
-    public void addFoodPartyToCart(String username, String restaurantId, int menuId, String foodName , int foodCount)
+    public void addFoodPartyToCart(String username, String restaurantId, int menuId,
+                                   String foodName , Double price, int foodCount)
     throws SQLException, FoodNotInFoodParty, TimeValidationErrorFoodParty, BuyFromOtherRestaurant ,
             CountValidationErrorFoodParty , NoCurrOrder{
         boolean canChoose = RestaurantManager.getInstance().canChooseFoodParty(
@@ -118,7 +120,7 @@ public class UserManager {
                 OrdersMapper.getInstance().insert(new OrdersDAO(username,restaurantId));
                 //after adding new tuple to orders table just need to add new tuple to order menus table
                 int orderId = OrdersMapper.getInstance().findOrderIdOfUserCurrOrder(username);
-                OrderMenuMapper.getInstance().insert(new OrderMenuDAO(orderId, menuId, foodCount, true));
+                OrderMenuMapper.getInstance().insert(new OrderMenuDAO(orderId, menuId, foodName, price, foodCount, true));
                 return;
             }
             else if(this.checkUserIsBuyFromOtherRestaurant(username, restaurantId)){
@@ -130,7 +132,7 @@ public class UserManager {
                 // just update order menu table if menuId
                 int orderId = OrdersMapper.getInstance().findOrderIdOfUserCurrOrder(username);
                 System.out.println("user not start order and restaurant is same" + Integer.toString(orderId));
-                OrderMenuMapper.getInstance().InsertOrUpdateCountFood(orderId, menuId, foodCount, true);
+                OrderMenuMapper.getInstance().InsertOrUpdateCountFood(orderId, menuId, foodName, price, foodCount, true);
                 return;
             }
         }
@@ -140,7 +142,7 @@ public class UserManager {
 
 
     public BuyBasketDTO getUserCurrBuyBasket(String username) throws SQLException{
-        return null;
+        return UserMapper.getInstance().getUserCurrBuyBasket(username);
     }
 
 

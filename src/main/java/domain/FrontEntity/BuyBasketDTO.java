@@ -6,28 +6,16 @@ import java.util.ArrayList;
 public class BuyBasketDTO {
     private String username;
     private int orderId;
-    private String restaurantName;
-    private String restaurantId;
     private int totalFood;
     private Double totalMoney;
     ArrayList<FoodInBasketDTO> foods;
 
 
-    public void setRestaurantId(String restaurantId) {
-        this.restaurantId = restaurantId;
+    public BuyBasketDTO(String username){
+        this.username = username;
     }
 
-    public String getRestaurantId() {
-        return restaurantId;
-    }
 
-    public void setRestaurantName(String restaurantName) {
-        this.restaurantName = restaurantName;
-    }
-
-    public String getRestaurantName() {
-        return restaurantName;
-    }
 
     public int getOrderId() {
         return orderId;

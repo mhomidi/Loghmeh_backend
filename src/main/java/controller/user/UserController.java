@@ -105,11 +105,13 @@ public class UserController {
             int menuId = Integer.parseInt(request.getMenuId());
             String foodName = request.getFoodName();
             int foodCount = Integer.parseInt(request.getFoodCount());
+            Double price = Double.parseDouble(request.getPrice());
+            System.out.println("price is" + Double.toString(price) + " and food name is " + foodName);
             SingleUserDTO user = UserManager.getInstance().getUserByID(username);
             RestaurantInfoDTO restaurant = RestaurantManager.getInstance().getRestaurantById(restaurantId);
             MenuDTO food = RestaurantManager.getInstance().findMenuInRestaurantWithFoodNameAndMenuId(restaurantId,foodName,menuId);
             System.out.println(user  + "\n\n" + restaurant + "\n\n" + food);
-            UserManager.getInstance().addFoodToCart(username, restaurantId, menuId, foodName, foodCount);
+            UserManager.getInstance().addFoodToCart(username, restaurantId, menuId, foodName, price, foodCount);
             Message m = new Message("غذا با موفقیت به سبد خرید اضافه شد");
             return ResponseEntity.status(HttpStatus.OK).body(m);
         } catch (UserNotFound e) {
@@ -145,10 +147,11 @@ public class UserController {
             String restaurantId = request.getRestaurantId();
             int menuId = Integer.parseInt(request.getMenuId());
             String foodName = request.getFoodName();
+            Double price = Double.parseDouble(request.getPrice());
             int foodCount = Integer.parseInt(request.getFoodCount());
             SingleUserDTO user = UserManager.getInstance().getUserByID(username);
             RestaurantInfoDTO restaurant = RestaurantManager.getInstance().getRestaurantById(restaurantId);
-            UserManager.getInstance().addFoodPartyToCart(username, restaurantId, menuId, foodName, foodCount);
+            UserManager.getInstance().addFoodPartyToCart(username, restaurantId, menuId, foodName, price, foodCount);
             Message m = new Message("فود پارتی با موفقیت به سبد خرید اضافه شد");
             return ResponseEntity.status(HttpStatus.OK).body(m);
         } catch (UserNotFound e) {
@@ -213,6 +216,8 @@ public class UserController {
             return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
         }
     }
+
+
 
 
 

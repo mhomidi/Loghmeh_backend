@@ -33,6 +33,8 @@ public class OrderMenuMapper extends Mapper<OrderMenuDAO, String> implements IOr
                 "( id INT AUTO_INCREMENT,\n" +
                 "  orderId INT,\n" +
                 "  menuId INT,\n" +
+                "  foodName VARCHAR(250),\n" +
+                "  price DOUBLE ,\n" +
                 "  countFood INT ,\n" +
                 "  isFoodParty boolean,\n" +
                 "  FOREIGN KEY(orderId) references Orders(orderId) ON DELETE CASCADE,\n" +
@@ -62,17 +64,19 @@ public class OrderMenuMapper extends Mapper<OrderMenuDAO, String> implements IOr
 
     @Override
     protected String getInsertStatement() {
-        return "INSERT INTO OrderMenu (orderId, menuId, countFood,  isFoodParty) " +
-                "VALUES(?, ?, ?, ?)";
+        return "INSERT INTO OrderMenu (orderId, menuId, foodName , price, countFood,  isFoodParty) " +
+                "VALUES(?, ?, ?, ?,?,?)";
     }
 
     @Override
     protected OrderMenuDAO convertResultSetToDomainModel(ResultSet rs) throws SQLException {
         int orderId = rs.getInt(2);
         int menuId = rs.getInt(3);
-        int countFood = rs.getInt(4);
-        boolean isFoodParty = rs.getBoolean(5);
-        return new OrderMenuDAO(orderId, menuId, countFood, isFoodParty);
+        String foodName = rs.getString(4);
+        Double price = rs.getDouble(5);
+        int countFood = rs.getInt(6);
+        boolean isFoodParty = rs.getBoolean(7);
+        return new OrderMenuDAO(orderId, menuId,foodName, price, countFood, isFoodParty);
     }
 
     @Override
@@ -84,8 +88,10 @@ public class OrderMenuMapper extends Mapper<OrderMenuDAO, String> implements IOr
     protected void fillInsertValues(PreparedStatement st, OrderMenuDAO orderMenuDAO) throws SQLException {
         st.setInt(1,orderMenuDAO.getOrderId());
         st.setInt(2,orderMenuDAO.getMenuId());
-        st.setInt(3,orderMenuDAO.getCount());
-        st.setBoolean(4,orderMenuDAO.isFoodParty());
+        st.setString(3,orderMenuDAO.getFoodName());
+        st.setDouble(4,orderMenuDAO.getPrice());
+        st.setInt(5,orderMenuDAO.getCount());
+        st.setBoolean(6,orderMenuDAO.isFoodParty());
     }
 
 
@@ -108,18 +114,17 @@ public class OrderMenuMapper extends Mapper<OrderMenuDAO, String> implements IOr
     }
 
 
-    public void InsertOrUpdateCountFood(int orderId, int menuId, int count, boolean isFoodParty)
+    public void InsertOrUpdateCountFood(int orderId, int menuId,String foodName , Double price, int count, boolean isFoodParty)
     throws SQLException{
         System.out.println("user want to update or insert new food to order");
         OrderMenuDAO orderMenuDAO = checkFoodExistInOrder(orderId, menuId , isFoodParty);
         System.out.println(orderMenuDAO);
         if (orderMenuDAO == null){
-            insert(new OrderMenuDAO(orderId, menuId,  count, isFoodParty));
+            insert(new OrderMenuDAO(orderId, menuId, foodName, price,  count, isFoodParty));
         }
         else {
             updateCountFoodInOrder(orderId, menuId, isFoodParty, orderMenuDAO.getCount() + count);
         }
-
     }
 
 

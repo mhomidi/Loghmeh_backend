@@ -4,6 +4,7 @@ public class AddToCartRequest {
     private String restaurantId;
     private String menuId;
     private String foodName;
+    private String price;
     private String foodCount;
 
 
@@ -39,4 +40,13 @@ public class AddToCartRequest {
     public void setFoodCount(String foodCount) {
         this.foodCount = foodCount;
     }
+
+    public String getPrice() {
+        return price;
+    }
+
+    public void setPrice(String price) {
+        this.price = price;
+    }
+
 }

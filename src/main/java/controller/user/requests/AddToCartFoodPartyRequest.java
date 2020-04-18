@@ -4,6 +4,7 @@ public class AddToCartFoodPartyRequest {
     private String restaurantId;
     private String menuId;
     private String foodName;
+    private String price;
     private String foodCount;
 
 
@@ -37,5 +38,13 @@ public class AddToCartFoodPartyRequest {
 
     public void setFoodCount(String foodCount) {
         this.foodCount = foodCount;
+    }
+
+    public void setPrice(String price) {
+        this.price = price;
+    }
+
+    public String getPrice() {
+        return price;
     }
 }

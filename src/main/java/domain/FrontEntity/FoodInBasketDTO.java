@@ -7,6 +7,15 @@ public class FoodInBasketDTO {
     private int countFood;
     private Double foodPrice;
 
+
+
+    public FoodInBasketDTO(int menuId, String foodName, int countFood, Double foodPrice){
+        this.menuId = menuId;
+        this.foodPrice = foodPrice;
+        this.countFood = countFood;
+        this.foodName = foodName;
+    }
+
     public String getFoodName() {
         return foodName;
     }

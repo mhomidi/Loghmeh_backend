@@ -3,7 +3,14 @@ package dataAccess.dataMapper.menu;
 
 import dataAccess.ConnectionPool;
 import dataAccess.dataMapper.Mapper;
+import domain.FrontEntity.MenuDTO;
+import domain.FrontEntity.RestaurantMenuDTO;
 import domain.databaseEntity.MenuDAO;
+import domain.databaseEntity.RestaurantDAO;
+import domain.exceptions.FoodNotExist;
+import domain.exceptions.RestaurantNotAvailable;
+import domain.exceptions.RestaurantNotFound;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -135,7 +142,40 @@ public class MenuMapper extends Mapper<MenuDAO, String> implements IMenuMapper {
 
 
 
+    public MenuDTO findMenuInRestaurantWithMenuNameAndMenuId(String restaurantId , String foodName, int menuId)
+            throws  SQLException , FoodNotExist {
 
-
-
+        Connection con = ConnectionPool.getConnection();
+        PreparedStatement preparedStatement = con.prepareStatement(
+                "SELECT *\n" +
+                        "FROM Menus M\n" +
+                        "where M.restaurantId=? AND M.menuId=? AND M.foodName=? AND M.menuId not in (\n" +
+                        "    SELECT FPM.menuId FROM FoodPartyMenus FPM\n" +
+                        "    );");
+        preparedStatement.setString(1,restaurantId);
+        preparedStatement.setInt(2,menuId);
+        preparedStatement.setString(3,foodName);
+        ResultSet resultSet;
+        resultSet =preparedStatement.executeQuery();
+        if(!resultSet.next()) {
+            resultSet.close();
+            preparedStatement.close();
+            con.close();
+            throw new FoodNotExist();
+        }
+        else{
+            MenuDTO findMenu;
+            int id = resultSet.getInt(1);
+            String name = resultSet.getString(2);
+            String description = resultSet.getString(3);
+            Double popularity = resultSet.getDouble(4);
+            Double price = resultSet.getDouble(5);
+            String foodUrl = resultSet.getString(6);
+            findMenu = new MenuDTO(id, name, price, popularity, description, foodUrl, restaurantId);
+            resultSet.close();
+            preparedStatement.close();
+            con.close();
+            return  findMenu;
+        }
+    }
 }

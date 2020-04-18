@@ -1,6 +1,7 @@
 package domain.manager;
 
 import domain.FrontEntity.FoodPartyDTO;
+import domain.FrontEntity.MenuDTO;
 import domain.FrontEntity.RestaurantMenuDTO;
 import domain.FrontEntity.RestaurantInfoDTO;
 import dataAccess.dataMapper.foodPartyMenus.MenuPartyMapper;
@@ -10,9 +11,7 @@ import domain.databaseEntity.FoodPartyDAO;
 import domain.databaseEntity.MenuDAO;
 import domain.databaseEntity.RestaurantDAO;
 import domain.entity.*;
-import domain.exceptions.FoodNotExist;
-import domain.exceptions.RestaurantNotAvailable;
-import domain.exceptions.RestaurantNotFound;
+import domain.exceptions.*;
 import domain.repositories.Loghmeh;
 
 import domain.entity.User;
@@ -194,8 +193,30 @@ public class RestaurantManager {
         return RestaurantMapper.getInstance().getRestaurantWithMenusById(id);
     }
 
+    public RestaurantInfoDTO getRestaurantById(String id)throws SQLException, RestaurantNotFound,
+            RestaurantNotAvailable{
+        RestaurantDAO restaurant = RestaurantMapper.getInstance().find(id);
+        if(restaurant == null) {
+            throw new RestaurantNotFound();
+        }
+        if(restaurant.getLocation_X()*restaurant.getLocation_X() +
+                restaurant.getLocation_Y()*restaurant.getLocation_Y() > 28900){
+            throw new RestaurantNotAvailable();
+        }
+        return new RestaurantInfoDTO(restaurant.getRestaurantId(), restaurant.getRestaurantName(), restaurant.getLogoUrl());
+    }
 
 
+    public MenuDTO findMenuInRestaurantWithFoodNameAndMenuId(String restaurantId, String foodName , int menuId)
+            throws FoodNotExist, SQLException{
+        return MenuMapper.getInstance().findMenuInRestaurantWithMenuNameAndMenuId(restaurantId, foodName, menuId);
+    }
+
+
+    public boolean canChooseFoodParty(String restaurantId, int menuId, String foodName , int foodCount)
+        throws SQLException, FoodNotInFoodParty, TimeValidationErrorFoodParty, CountValidationErrorFoodParty{
+        return RestaurantMapper.getInstance().canChooseFoodParty(restaurantId, menuId, foodName, foodCount);
+    }
 
 
 
@@ -233,15 +254,7 @@ public class RestaurantManager {
 
 
 
-    public Menu findMenuInRestaurantWithFoodName(Restaurant restaurant , String foodName)throws FoodNotExist{
-        Menu food = restaurant.findFoodMenu(foodName);
-        if(food!=null){
-            return food;
-        }
-        else {
-            throw new FoodNotExist();
-        }
-    }
+
 
 
 

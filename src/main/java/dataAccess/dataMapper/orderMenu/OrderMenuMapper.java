@@ -7,6 +7,7 @@ import domain.databaseEntity.OrderMenuDAO;
 import domain.databaseEntity.OrdersDAO;
 import domain.entity.Menu;
 import domain.entity.Order;
+import domain.exceptions.NoCurrOrder;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -61,13 +62,17 @@ public class OrderMenuMapper extends Mapper<OrderMenuDAO, String> implements IOr
 
     @Override
     protected String getInsertStatement() {
-        return "INSERT INTO Menus (orderId, menuId, countFood,  isFoodParty) " +
+        return "INSERT INTO OrderMenu (orderId, menuId, countFood,  isFoodParty) " +
                 "VALUES(?, ?, ?, ?)";
     }
 
     @Override
     protected OrderMenuDAO convertResultSetToDomainModel(ResultSet rs) throws SQLException {
-        return null;
+        int orderId = rs.getInt(2);
+        int menuId = rs.getInt(3);
+        int countFood = rs.getInt(4);
+        boolean isFoodParty = rs.getBoolean(5);
+        return new OrderMenuDAO(orderId, menuId, countFood, isFoodParty);
     }
 
     @Override
@@ -103,8 +108,68 @@ public class OrderMenuMapper extends Mapper<OrderMenuDAO, String> implements IOr
     }
 
 
+    public void InsertOrUpdateCountFood(int orderId, int menuId, int count, boolean isFoodParty)
+    throws SQLException{
+        System.out.println("user want to update or insert new food to order");
+        OrderMenuDAO orderMenuDAO = checkFoodExistInOrder(orderId, menuId , isFoodParty);
+        System.out.println(orderMenuDAO);
+        if (orderMenuDAO == null){
+            insert(new OrderMenuDAO(orderId, menuId,  count, isFoodParty));
+        }
+        else {
+            updateCountFoodInOrder(orderId, menuId, isFoodParty, orderMenuDAO.getCount() + count);
+        }
+
+    }
 
 
 
 
+    public OrderMenuDAO checkFoodExistInOrder(int orderId, int menuId , boolean isFoodParty) throws SQLException{
+        Connection con = ConnectionPool.getConnection();
+        PreparedStatement preparedStatement = con.prepareStatement(
+                "SELECT * " +
+                        " FROM OrderMenu" +
+                        " WHERE orderId=? AND menuId=? AND isFoodParty=?");
+        preparedStatement.setInt(1, orderId);
+        preparedStatement.setInt(2,menuId);
+        preparedStatement.setBoolean(3,isFoodParty);
+        ResultSet resultSet;
+        resultSet =preparedStatement.executeQuery();
+        if(!resultSet.next()) {
+            System.out.println("not find food");
+            resultSet.close();
+            preparedStatement.close();
+            con.close();
+            return null;
+        }
+        else{
+            System.out.println("find food");
+            OrderMenuDAO orderMenuDAO = convertResultSetToDomainModel(resultSet);
+            resultSet.close();
+            preparedStatement.close();
+            con.close();
+            return orderMenuDAO;
+        }
+    }
+
+
+
+
+    public void updateCountFoodInOrder(int orderId, int menuId , boolean isFoodParty , int new_count)
+        throws SQLException{
+        System.out.println("update...");
+            Connection con = ConnectionPool.getConnection();
+            PreparedStatement preparedStatement = con.prepareStatement("" +
+                    " UPDATE OrderMenu" +
+                    " SET countFood=?" +
+                    " WHERE orderId=? AND menuId=? AND isFoodParty=?");
+            preparedStatement.setInt(1,new_count);
+            preparedStatement.setInt(2,orderId);
+            preparedStatement.setInt(3,menuId);
+            preparedStatement.setBoolean(4,isFoodParty);
+            preparedStatement.executeUpdate();
+            preparedStatement.close();
+            con.close();
+    }
 }

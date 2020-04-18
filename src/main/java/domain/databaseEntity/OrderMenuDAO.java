@@ -46,5 +46,13 @@ public class OrderMenuDAO {
         isFoodParty = foodParty;
     }
 
-
+    @Override
+    public String toString() {
+        return "OrderMenuDAO{" +
+                "orderId=" + orderId +
+                ", menuId=" + menuId +
+                ", count=" + count +
+                ", isFoodParty=" + isFoodParty +
+                '}';
+    }
 }

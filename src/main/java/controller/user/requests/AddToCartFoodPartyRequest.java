@@ -1,50 +1,41 @@
 package controller.user.requests;
 
 public class AddToCartFoodPartyRequest {
-    private String restaurantName;
-    private String RestaurantId;
+    private String restaurantId;
+    private String menuId;
     private String foodName;
-    private Double newPrice;
-    private String countFood;
+    private String foodCount;
 
 
-    public String getRestaurantName() {
-        return restaurantName;
+    public String getMenuId() {
+        return menuId;
     }
 
-    public void setRestaurantName(String restaurantName) {
-        this.restaurantName = restaurantName;
-    }
-
-    public Double getNewPrice() {
-        return newPrice;
-    }
-
-    public String getCountFood() {
-        return countFood;
-    }
-
-    public String getFoodName() {
-        return foodName;
+    public void setMenuId(String menuId) {
+        this.menuId = menuId;
     }
 
     public String getRestaurantId() {
-        return RestaurantId;
+        return restaurantId;
     }
 
-    public void setCountFood(String countFood) {
-        this.countFood = countFood;
-    }
-
-    public void setRestaurantId(String getRestaurantId) {
-        this.RestaurantId = getRestaurantId;
+    public void setRestaurantId(String restaurantId) {
+        this.restaurantId = restaurantId;
     }
 
     public void setFoodName(String foodName) {
         this.foodName = foodName;
     }
 
-    public void setNewPrice(Double newPrice) {
-        this.newPrice = newPrice;
+    public String getFoodName() {
+        return foodName;
+    }
+
+    public String getFoodCount() {
+        return foodCount;
+    }
+
+    public void setFoodCount(String foodCount) {
+        this.foodCount = foodCount;
     }
 }

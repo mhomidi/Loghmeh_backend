@@ -3,15 +3,9 @@ package controller.user;
 
 
 import controller.user.requests.*;
-import controller.user.responses.BuyBasketResponse;
-import domain.FrontEntity.SingleUserDTO;
+import domain.FrontEntity.*;
 import controller.user.responses.TokenResponse;
-import controller.user.responses.UserOrdersResponse;
 import domain.databaseEntity.UserDAO;
-import domain.entity.FoodParty;
-import domain.entity.Menu;
-import domain.entity.MenuParty;
-import domain.entity.Restaurant;
 import domain.exceptions.*;
 
 import domain.entity.User;
@@ -31,7 +25,7 @@ public class UserController {
         try{
             String loginInfo ="Login:" + request.getUsername() + " " + request.getPassword();
             System.out.println(loginInfo);
-            String token =  UserManager.login(request.getUsername(), request.getPassword());
+            String token =  UserManager.getInstance().login(request.getUsername(), request.getPassword());
             loginInfo += " user found token is " + token;
             System.out.println(loginInfo);
             return  ResponseEntity.status(HttpStatus.OK).body(new TokenResponse(token,request.getUsername()));
@@ -48,7 +42,7 @@ public class UserController {
     public ResponseEntity<?> signup(@RequestBody final SignupRequest request)  {
         try{
             System.out.println(request.getPhone());
-            UserManager.registerUser(
+            UserManager.getInstance().registerUser(
                     new UserDAO(request.getFirstName(),
                             request.getLastName(),
                             request.getUsername(),
@@ -56,7 +50,7 @@ public class UserController {
                             request.getEmail(),
                             request.getPhone(), 0.0));
 
-            String token = UserManager.login(request.getUsername(), request.getPassword());
+            String token = UserManager.getInstance().login(request.getUsername(), request.getPassword());
             return  ResponseEntity.status(HttpStatus.OK).body(new TokenResponse(token , request.getUsername()));
         }catch (UserAlreadyExists e){
             Message m = new Message(e.getMessage());
@@ -77,7 +71,7 @@ public class UserController {
     @RequestMapping(value = "/users/{username}", method = RequestMethod.GET)
     public ResponseEntity<?>  getUser(@PathVariable(value = "username") String username) {
         try {
-            return ResponseEntity.status(HttpStatus.OK).body(UserManager.getUserByID(username));
+            return ResponseEntity.status(HttpStatus.OK).body(UserManager.getInstance().getUserByID(username));
         } catch (UserNotFound e) {
             Message m = new Message(e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
@@ -91,15 +85,132 @@ public class UserController {
     public ResponseEntity<?> AddCredit(@PathVariable(value = "username") String username ,
             @RequestBody final CreditRequest request) {
         try {
-            UserManager.addCredit(username, Double.parseDouble(request.getMoney()));
+            UserManager.getInstance().addCredit(username, Double.parseDouble(request.getMoney()));
             Message m = new Message("مبلغ با موفقیت به حساب کاربر اضافه شد");
             return ResponseEntity.status(HttpStatus.OK).body(m);
         } catch (UserNotFound e) {
             Message m = new Message(e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
         } catch (SQLException e) {
             Message m = new Message("خطای دیتابیس هنگام اضافه کردن مبلغ به حساب کاربری");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
+        }
+    }
+
+    @RequestMapping(value = "/users/{username}/add_cart", method = RequestMethod.POST)
+    public ResponseEntity<?> AddToCart(@PathVariable(value = "username") String username,
+                                       @RequestBody final AddToCartRequest request) {
+        try {
+            String restaurantId = request.getRestaurantId();
+            int menuId = Integer.parseInt(request.getMenuId());
+            String foodName = request.getFoodName();
+            int foodCount = Integer.parseInt(request.getFoodCount());
+            SingleUserDTO user = UserManager.getInstance().getUserByID(username);
+            RestaurantInfoDTO restaurant = RestaurantManager.getInstance().getRestaurantById(restaurantId);
+            MenuDTO food = RestaurantManager.getInstance().findMenuInRestaurantWithFoodNameAndMenuId(restaurantId,foodName,menuId);
+            System.out.println(user  + "\n\n" + restaurant + "\n\n" + food);
+            UserManager.getInstance().addFoodToCart(username, restaurantId, menuId, foodName, foodCount);
+            Message m = new Message("غذا با موفقیت به سبد خرید اضافه شد");
+            return ResponseEntity.status(HttpStatus.OK).body(m);
+        } catch (UserNotFound e) {
+            Message m = new Message(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
+        }catch (RestaurantNotFound e) {
+            Message m = new Message(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
+        } catch (RestaurantNotAvailable e) {
+            Message m = new Message(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
+        } catch (FoodNotExist e) {
+            Message m = new Message(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
+        } catch (NoCurrOrder e){
+            Message m = new Message(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
+        } catch (BuyFromOtherRestaurant e) {
+            Message m = new Message(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(m);
+        }
+        catch (SQLException e){
+            Message m = new Message("خطای دیتابیس هنگام اضافه کردن غذا به سبد خرید");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
+        }
+    }
+
+
+    @RequestMapping(value = "/users/{username}/add_foodParty_cart", method = RequestMethod.POST)
+    public ResponseEntity<?> AddPartyCart(@PathVariable(value = "username") String username,
+                          @RequestBody final AddToCartFoodPartyRequest request) {
+        try {
+            String restaurantId = request.getRestaurantId();
+            int menuId = Integer.parseInt(request.getMenuId());
+            String foodName = request.getFoodName();
+            int foodCount = Integer.parseInt(request.getFoodCount());
+            SingleUserDTO user = UserManager.getInstance().getUserByID(username);
+            RestaurantInfoDTO restaurant = RestaurantManager.getInstance().getRestaurantById(restaurantId);
+            UserManager.getInstance().addFoodPartyToCart(username, restaurantId, menuId, foodName, foodCount);
+            Message m = new Message("فود پارتی با موفقیت به سبد خرید اضافه شد");
+            return ResponseEntity.status(HttpStatus.OK).body(m);
+        } catch (UserNotFound e) {
+            Message m = new Message(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
+        } catch (SQLException e) {
+            Message m = new Message("خطای دیتابیس هنگام افزودن فود پارتی به سبد خرید");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
+        } catch (RestaurantNotFound e) {
+            Message m = new Message(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
+        } catch (RestaurantNotAvailable e) {
+            Message m = new Message(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
+        } catch (FoodNotInFoodParty e) {
+            Message m = new Message(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
+        } catch (TimeValidationErrorFoodParty e) {
+            Message m = new Message(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
+        } catch (CountValidationErrorFoodParty e) {
+            Message m = new Message(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
+        } catch (NoCurrOrder e) {
+            Message m = new Message(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
+        } catch (BuyFromOtherRestaurant e) {
+            Message m = new Message(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
+        }
+    }
+
+
+    @RequestMapping(value = "/users/{username}/show_cart", method = RequestMethod.GET)
+    public  ResponseEntity<?> ShowCart(@PathVariable(value = "username") String username) {
+        try{
+            SingleUserDTO user = UserManager.getInstance().getUserByID(username);
+            BuyBasketDTO buyBasketDTO = UserManager.getInstance().getUserCurrBuyBasket(username);
+            return ResponseEntity.status(HttpStatus.OK).body(buyBasketDTO);
+        }catch (UserNotFound e){
+            Message m = new Message(e.getMessage());
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
+        }catch (SQLException e){
+            Message m = new Message("خطای دیتابیس هنگام نمایش سبد خرید");
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
+        }
+    }
+
+    @RequestMapping(value = "/users/{username}/orders", method = RequestMethod.GET)
+    public ResponseEntity<?>  getOrders(@PathVariable(value = "username") String username)
+            throws UserNotFound {
+        try {
+            SingleUserDTO user = UserManager.getInstance().getUserByID(username);
+            AllUserOrdersDTO allUserOrdersDTO = UserManager.getInstance().getUserAllOrders(username);
+            return  ResponseEntity.status(HttpStatus.OK).body(allUserOrdersDTO);
+        }
+        catch (UserNotFound e){
+            Message m = new Message(e.getMessage());
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
+        }catch (SQLException e){
+            Message m = new Message("خطای دیتابیس هنگام نمایش لیست اردرها");
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
         }
     }
 
@@ -110,126 +221,6 @@ public class UserController {
 
 
 
-
-
-
-    @RequestMapping(value = "/users/{username}/add_cart", method = RequestMethod.POST)
-    public ResponseEntity<?> AddCredit(@PathVariable(value = "username") String username,
-                                       @RequestBody final AddToCartRequest request) {
-//        try {
-//            int count = Integer.parseInt(request.getNumFood());
-//            String foodName = request.getFoodName();
-//            String restaurantId = request.getRestaurantId();
-//            String info = "user " + username +" want to add " + Integer.toString(count) + " " +
-//                    foodName + " from restaurant " + restaurantId;
-//            System.out.println(info);
-//            User user = UserManager.getUserByID(username);
-//            Restaurant restaurant = RestaurantManager.getInstance().getRestaurantById(restaurantId);
-//            String restaurantName = restaurant.getName();
-//            Menu food = RestaurantManager.getInstance().findMenuInRestaurantWithFoodName(restaurant , foodName);
-//            UserManager.addFoodToCart(user,restaurant,food,count);
-//        }catch (BuyFromOtherRestaurant e){
-//            Message m = new Message(e.getMessage());
-//            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(m);
-//        }
-//        catch (FoodNotExist e){
-//            Message m = new Message(e.getMessage());
-//            return   ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-//        }
-//
-//        catch (RestaurantNotFound e){
-//            Message m = new Message(e.getMessage());
-//            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-//        }
-//
-//        catch (RestaurantNotAvailable e){
-//            Message m = new Message(e.getMessage());
-//            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-//        }
-//        catch (UserNotFound e){
-//            Message m = new Message(e.getMessage());
-//            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-//        }
-        Message m = new Message("غذا با موفقیت به سبد خرید اضافه شد");
-        return  ResponseEntity.status(HttpStatus.OK).body(m);
-    }
-
-    @RequestMapping(value = "/users/{username}/add_foodParty_cart", method = RequestMethod.POST)
-    public ResponseEntity<?> AddPartyCredit(@PathVariable(value = "username") String username,
-                          @RequestBody final AddToCartFoodPartyRequest request) {
-        Message m = new Message("غذا با موفقیت به سبد خرید اضافه شد");
-        return  ResponseEntity.status(HttpStatus.OK).body(m);
-//        try {
-//            int count = Integer.parseInt(request.getCountFood());
-//            String foodName = request.getFoodName();
-//            String restaurantId = request.getRestaurantId();
-//            String info = "user " + username + " want to add " + Integer.toString(count) + " " +
-//                    foodName + " from restaurant " + restaurantId + " food party!!";
-//            System.out.println(info);
-//            User user = UserManager.getUserByID(username);
-//            Restaurant restaurant = RestaurantManager.getInstance().getRestaurantWithId(restaurantId);
-//            FoodParty foodParty = RestaurantManager.getInstance().findRestaurantInFoodParty(restaurantId);
-//
-//            if (foodParty == null) {
-//                Message m = new Message("غذای مورد نظر در رستوران به عنوان فود پارتی یافت نشد");
-//                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
-//            }
-//            MenuParty menu = foodParty.findMenuOfFood(foodName);
-//            if (menu == null) {
-//                Message m = new Message("غذای مورد نظر در رستوران به عنوان فود پارتی یافت نشد");
-//                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
-//            }
-//            if (!foodParty.timeAvailable()) {
-//                Message m = new Message("اتمام زمان لازم جهت سفارش غذای فود پارتی ");
-//                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
-//            }
-//
-//            if (!menu.canChooseThisMenu(count)) {
-//                Message m = new Message("اتمام موجودی غذا جهت سفارش غذای فود پارتی ");
-//                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
-//            }
-//
-//            if (user.startChoosingFood()) {
-//                user.addPartyFoodToCart(menu, restaurant.getName(), restaurantId , count);
-//                System.out.println("user add food party " + foodName + " with count " + count +" with new price " + menu.getNewPrice() +
-//                        " from restaurant " + restaurant.getName() + " successfully done!");
-//                Message m = new Message("فود پارتی با موفقیت به سبد شما اضافه شد");
-//                return ResponseEntity.status(HttpStatus.OK).body(m);
-//
-//            }
-//            else if (user.isBuyFromOtherRestaurant(restaurant.getName())) {
-//                Message m = new Message("شما در حال حاضر سفارش ثبت نشده ای از رستوران دیگری دارید");
-//                return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(m);
-//            }
-//            else {
-//                user.addPartyFoodToCart(menu, restaurant.getName(), restaurantId , count);
-//                System.out.println("user add food " + foodName + " with count " + count +" with new price " + menu.getNewPrice() +
-//                        " from restaurant " + restaurant.getName() + " successfully done!");
-//                Message m = new Message("فود پارتی با موفقیت به سبد شما اضافه شد");
-//                return ResponseEntity.status(HttpStatus.OK).body(m);
-//            }
-//        }catch (UserNotFound e){
-//            Message m = new Message(e.getMessage());
-//            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-//        }
-
-    }
-
-    @RequestMapping(value = "/users/{username}/show_cart", method = RequestMethod.GET)
-    public  ResponseEntity<?> ShowCart(@PathVariable(value = "username") String username)
-            throws UserNotFound {
-        Message m = new Message("غذا با موفقیت به سبد خرید اضافه شد");
-        return  ResponseEntity.status(HttpStatus.OK).body(m);
-//        String info ="user " + username + "wants to show his/her curr order";
-//        System.out.println(info);
-//        try{
-//            User user = UserManager.getUserByID(username);
-//            return ResponseEntity.status(HttpStatus.OK).body(new BuyBasketResponse(user));
-//        }catch (UserNotFound e){
-//            Message m = new Message(e.getMessage());
-//            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
-//        }
-    }
 
     @RequestMapping(value = "/users/{username}/increase", method = RequestMethod.POST)
     public ResponseEntity<?> increaseCountFood(@PathVariable(value = "username") String username ,
@@ -321,24 +312,6 @@ public class UserController {
         return  ResponseEntity.status(HttpStatus.OK).body(m);
     }
 
-
-    @RequestMapping(value = "/users/{username}/orders", method = RequestMethod.GET)
-    public ResponseEntity<?>  getOrders(@PathVariable(value = "username") String username)
-            throws UserNotFound {
-        Message m = new Message("غذا با موفقیت به سبد خرید اضافه شد");
-        return  ResponseEntity.status(HttpStatus.OK).body(m);
-//        try {
-//            String info = "user " + username + " wants to get all orders info his/her order";
-//            System.out.println(info);
-//            User user = UserManager.getUserByID(username);
-//            System.out.println(user);
-//            return  ResponseEntity.status(HttpStatus.OK).body(new UserOrdersResponse(user));
-//        }
-//        catch (UserNotFound e){
-//            Message m = new Message(e.getMessage());
-//            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
-//        }
-    }
 
 
 

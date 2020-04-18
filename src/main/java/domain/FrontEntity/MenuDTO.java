@@ -76,4 +76,17 @@ public class MenuDTO {
     public void setFoodName(String foodName) {
         this.foodName = foodName;
     }
+
+    @Override
+    public String toString() {
+        return "MenuDTO{" +
+                "menuId=" + menuId +
+                ", foodName='" + foodName + '\'' +
+                ", popularity=" + popularity +
+                ", price=" + price +
+                ", urlImage='" + urlImage + '\'' +
+                ", description='" + description + '\'' +
+                ", restaurantId='" + restaurantId + '\'' +
+                '}';
+    }
 }

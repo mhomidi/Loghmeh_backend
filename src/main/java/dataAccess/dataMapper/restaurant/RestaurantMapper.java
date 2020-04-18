@@ -9,9 +9,7 @@ import domain.FrontEntity.RestaurantMenuDTO;
 import domain.databaseEntity.RestaurantDAO;
 import domain.databaseEntity.UserDAO;
 import domain.entity.Menu;
-import domain.exceptions.RestaurantNotAvailable;
-import domain.exceptions.RestaurantNotFound;
-import domain.exceptions.UserNotFound;
+import domain.exceptions.*;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -248,6 +246,48 @@ public class RestaurantMapper extends Mapper<RestaurantDAO, String> implements I
         con.close();
         restaurantMenuDTO.setMenus(menuDTOS);
         return restaurantMenuDTO;
+    }
+
+
+    public boolean canChooseFoodParty(String restaurantId , int menuId, String foodName , int foodCount)
+        throws SQLException, FoodNotInFoodParty, TimeValidationErrorFoodParty, CountValidationErrorFoodParty{
+        Connection con = ConnectionPool.getConnection();
+        PreparedStatement preparedStatement = con.prepareStatement(
+                "SELECT M.menuId, M.foodName, R.restaurantName, R.restaurantId, M.price as oldPrice," +
+                        " FPM.newPrice , FPM.FoodCount , FPM.available\n" +
+                        "From FoodPartyMenus FPM " +
+                        "join Menus M on FPM.menuId = M.menuId " +
+                        "join Restaurants R on M.restaurantId = R.restaurantId " +
+                        "WHERE R.restaurantId=? AND M.menuId=? AND M.foodName=?");
+        preparedStatement.setString(1,restaurantId);
+        preparedStatement.setInt(2,menuId);
+        preparedStatement.setString(3, foodName);
+        ResultSet resultSet;
+        resultSet =preparedStatement.executeQuery();
+        if(!resultSet.next()) {
+            resultSet.close();
+            preparedStatement.close();
+            con.close();
+            throw new FoodNotInFoodParty();
+        }
+        else{
+            Boolean available = resultSet.getBoolean(8);
+            if(!available){
+                resultSet.close();
+                preparedStatement.close();
+                con.close();
+                throw new TimeValidationErrorFoodParty();
+            }
+            int count = resultSet.getInt(7);
+            if (foodCount>count){
+                resultSet.close();
+                preparedStatement.close();
+                con.close();
+                throw new CountValidationErrorFoodParty();
+            }
+            return true;
+        }
+
     }
 
 

@@ -3,10 +3,13 @@ package dataAccess.dataMapper.orders;
 
 import dataAccess.ConnectionPool;
 import dataAccess.dataMapper.Mapper;
+import domain.FrontEntity.MenuDTO;
 import domain.databaseEntity.FoodPartyDAO;
 import domain.databaseEntity.OrdersDAO;
 import domain.entity.Menu;
 import domain.entity.Order;
+import domain.exceptions.FoodNotExist;
+import domain.exceptions.NoCurrOrder;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -32,7 +35,7 @@ public class OrdersMapper extends Mapper<OrdersDAO, String> implements IOrdersMa
                 "( orderId INT AUTO_INCREMENT,\n" +
                 " username VARCHAR(50),\n" +
                 " restaurantId varchar(250),\n" +
-                " status INT DEFAULT NULL ,\n" +
+                " status INT DEFAULT 1 ,\n" +
                 " deliverPersonId varchar(250) default NULL ,\n" +
                 " FOREIGN KEY(username) references Users(username) on delete cascade ,\n" +
                 " FOREIGN KEY(restaurantId) references Restaurants(restaurantId) on delete cascade ,\n" +
@@ -66,8 +69,8 @@ public class OrdersMapper extends Mapper<OrdersDAO, String> implements IOrdersMa
 
     @Override
     protected String getInsertStatement() {
-        return "INSERT INTO Orders (username, restaurantId, status,deliverPersonId) " +
-                "VALUES(?, ?, ?, ?)";
+        return "INSERT INTO Orders (username, restaurantId) " +
+                "VALUES(?, ?)";
     }
 
     @Override
@@ -107,8 +110,83 @@ public class OrdersMapper extends Mapper<OrdersDAO, String> implements IOrdersMa
 
 
 
+    public boolean checkUserStartChoosingFoodInCurrOrder(String username)
+            throws  SQLException {
+        Connection con = ConnectionPool.getConnection();
+        PreparedStatement preparedStatement = con.prepareStatement(
+                "SELECT *\n" +
+                        "FROM Orders \n" +
+                        "where username=? AND status=?");
+        preparedStatement.setString(1, username);
+        preparedStatement.setInt(2,1); // not finalizing
+        ResultSet resultSet;
+        resultSet =preparedStatement.executeQuery();
+        if(!resultSet.next()) {
+            resultSet.close();
+            preparedStatement.close();
+            con.close();
+            return true;   // when there is no tuple so it means start order
+        }
+        else{
+            resultSet.close();
+            preparedStatement.close();
+            con.close();
+            return  false;
+        }
+    }
 
 
+    public String getRestaurantIdForCurrOrderOfUser(String username)
+            throws  SQLException , NoCurrOrder {
+        Connection con = ConnectionPool.getConnection();
+        PreparedStatement preparedStatement = con.prepareStatement(
+                "SELECT *\n" +
+                        "FROM Orders \n" +
+                        "where username=? AND status=?");
+        preparedStatement.setString(1, username);
+        preparedStatement.setInt(2,1); // not finalizing
+        ResultSet resultSet;
+        resultSet =preparedStatement.executeQuery();
+        if(!resultSet.next()) {
+            resultSet.close();
+            preparedStatement.close();
+            con.close();
+            throw  new NoCurrOrder();
+        }
+        else{
+            String restaurantId = resultSet.getString(3);
+            resultSet.close();
+            preparedStatement.close();
+            con.close();
+            return restaurantId;
+        }
+    }
 
+
+    public int findOrderIdOfUserCurrOrder(String username)
+            throws  SQLException , NoCurrOrder {
+        Connection con = ConnectionPool.getConnection();
+        PreparedStatement preparedStatement = con.prepareStatement(
+                "SELECT *\n" +
+                        "FROM Orders \n" +
+                        "where username=? AND status=?");
+        preparedStatement.setString(1, username);
+        preparedStatement.setInt(2,1); // not finalizing
+        ResultSet resultSet;
+        resultSet =preparedStatement.executeQuery();
+        if(!resultSet.next()) {
+            resultSet.close();
+            preparedStatement.close();
+            con.close();
+            throw  new NoCurrOrder();
+        }
+        else{
+            int orderId = resultSet.getInt(1);
+            resultSet.close();
+            preparedStatement.close();
+            con.close();
+            return orderId;
+        }
+    }
 
 }

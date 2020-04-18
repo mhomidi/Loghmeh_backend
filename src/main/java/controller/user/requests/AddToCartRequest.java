@@ -1,32 +1,42 @@
 package controller.user.requests;
 
 public class AddToCartRequest {
-    private String foodName;
-    private String numFood;
     private String restaurantId;
+    private String menuId;
+    private String foodName;
+    private String foodCount;
 
 
-    public String getFoodName() {
-        return foodName;
+
+    public String getMenuId() {
+        return menuId;
+    }
+
+    public void setMenuId(String menuId) {
+        this.menuId = menuId;
     }
 
     public String getRestaurantId() {
         return restaurantId;
     }
 
-    public String getNumFood() {
-        return numFood;
+    public void setRestaurantId(String restaurantId) {
+        this.restaurantId = restaurantId;
     }
 
     public void setFoodName(String foodName) {
         this.foodName = foodName;
     }
 
-    public void setRestaurantId(String restaurantId) {
-        this.restaurantId = restaurantId;
+    public String getFoodName() {
+        return foodName;
     }
 
-    public void setNumFood(String numFood) {
-        this.numFood = numFood;
+    public String getFoodCount() {
+        return foodCount;
+    }
+
+    public void setFoodCount(String foodCount) {
+        this.foodCount = foodCount;
     }
 }

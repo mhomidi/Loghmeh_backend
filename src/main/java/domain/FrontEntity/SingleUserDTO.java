@@ -81,4 +81,15 @@ public class SingleUserDTO {
         this.credit = credit;
     }
 
+    @Override
+    public String toString() {
+        return "SingleUserDTO{" +
+                "username='" + username + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", phone='" + phone + '\'' +
+                ", credit=" + credit +
+                '}';
+    }
 }

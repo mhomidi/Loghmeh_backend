@@ -191,18 +191,26 @@ public class UserMapper extends Mapper<UserDAO, String> implements IUserMapper {
     public BuyBasketDTO getUserCurrBuyBasket(String username)throws SQLException{
         Connection con = ConnectionPool.getConnection();
         PreparedStatement preparedStatement = con.prepareStatement(
-                "select Orders.orderId , OrderMenu.menuId , OrderMenu.countFood, OrderMenu.isFoodParty\n" +
-                        "from Orders , OrderMenu\n" +
-                        "where Orders.orderId = OrderMenu.orderId and Orders.status = ? and Orders.username = ?");
+                "SELECT Orders.orderId , OrderMenu.menuId , OrderMenu.foodName , OrderMenu.price , OrderMenu.countFood " +
+                        "FROM Orders , OrderMenu " +
+                        "WHERE Orders.orderId = OrderMenu.orderId" +
+                        " AND Orders.status = ? and Orders.username = ?");
         preparedStatement.setInt(1,1);
         preparedStatement.setString(2,username);
         ResultSet resultSet;
         resultSet = preparedStatement.executeQuery();
         BuyBasketDTO buyBasketDTO = new BuyBasketDTO(username);
+        ArrayList<FoodInBasketDTO> foodInBasketDTOS = new ArrayList<>();
         while(resultSet.next()) {
-
-
+            int orderId = resultSet.getInt(1);
+            int menuId = resultSet.getInt(2);
+            String foodName = resultSet.getString(3);
+            Double price = resultSet.getDouble(4);
+            int count = resultSet.getInt(5);
+            foodInBasketDTOS.add(new FoodInBasketDTO(menuId, foodName, count, price));
+            buyBasketDTO.setOrderId(orderId);
         }
+        buyBasketDTO.setFoods(foodInBasketDTOS);
         resultSet.close();
         preparedStatement.close();
         con.close();

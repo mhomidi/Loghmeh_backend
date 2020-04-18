@@ -6,13 +6,24 @@ import java.util.ArrayList;
 public class BuyBasketDTO {
     private String username;
     private int orderId;
+    ArrayList<FoodInBasketDTO> foods;
     private int totalFood;
     private Double totalMoney;
-    ArrayList<FoodInBasketDTO> foods;
 
 
     public BuyBasketDTO(String username){
         this.username = username;
+        this.totalFood = 0;
+        this.totalMoney = 0.0;
+    }
+
+
+
+    private void calcTotalMoneyAndTotalFood(){
+        for (FoodInBasketDTO foodInBasketDTO:foods){
+            this.totalFood += foodInBasketDTO.getCountFood();
+            this.totalMoney += foodInBasketDTO.getCountFood() * foodInBasketDTO.getFoodPrice();
+        }
     }
 
 
@@ -47,6 +58,7 @@ public class BuyBasketDTO {
 
     public void setFoods(ArrayList<FoodInBasketDTO> foods) {
         this.foods = foods;
+        this.calcTotalMoneyAndTotalFood();
     }
 
     public void setTotalFood(int totalFood) {

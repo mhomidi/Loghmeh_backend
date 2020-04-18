@@ -156,7 +156,9 @@ public class RestaurantManager {
 
     public ArrayList<RestaurantInfoDTO> getAvailableRestaurants(int pageNumber , int size,
                                                                 String searchFoodKey, String searchRestaurantKey) throws SQLException{
-        ArrayList<RestaurantDAO> results = RestaurantMapper.getInstance().findAvailableRestaurants();
+        ArrayList<RestaurantDAO> results = RestaurantMapper.getInstance().findAvailableRestaurants(
+                pageNumber, size, searchFoodKey, searchRestaurantKey
+        );
         ArrayList<RestaurantInfoDTO> restaurants = new ArrayList<>();
         for (RestaurantDAO restaurantDAO:results) {
             RestaurantInfoDTO restaurantInfoDTO = new RestaurantInfoDTO(restaurantDAO.getRestaurantId(),

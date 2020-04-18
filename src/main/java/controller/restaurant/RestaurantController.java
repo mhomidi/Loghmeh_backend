@@ -24,7 +24,7 @@ public class RestaurantController {
     @RequestMapping(value = "/restaurants", method = RequestMethod.GET)
     public ResponseEntity<?> getAvailableRestaurants(
             @RequestParam(value = "page", defaultValue = "-1") int pageNumber,
-            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(value = "size", defaultValue = "8") int size,
             @RequestParam(value = "searchFood", defaultValue = "") String searchFoodKey,
             @RequestParam(value = "searchRestaurant", defaultValue = "") String searchRestaurantKey
     ){

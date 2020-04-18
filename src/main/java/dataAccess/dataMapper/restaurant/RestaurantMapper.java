@@ -114,21 +114,47 @@ public class RestaurantMapper extends Mapper<RestaurantDAO, String> implements I
     }
 
 
-    public ArrayList<RestaurantDAO> findAvailableRestaurants() throws SQLException{
+    public ArrayList<RestaurantDAO> findAvailableRestaurants(int pageNumber , int size,
+                                                             String searchFoodKey, String searchRestaurantKey) throws SQLException{
         Connection con = ConnectionPool.getConnection();
-        PreparedStatement preparedStatement = con.prepareStatement("SELECT DISTINCT *" +
-                "FROM Restaurants " +
-                "WHERE location_X*location_X + location_Y*location_Y<=28900");
-        ResultSet resultSet;
-        resultSet =preparedStatement.executeQuery();
-        ArrayList<RestaurantDAO> result = new ArrayList<>();
-        while(resultSet.next())
-        {
-            result.add(convertResultSetToDomainModel(resultSet));
+        if (pageNumber == -1){
+            PreparedStatement preparedStatement = con.prepareStatement("SELECT DISTINCT *" +
+                    "FROM Restaurants " +
+                    "WHERE location_X*location_X + location_Y*location_Y<=28900 " +
+                    "AND restaurantName LIKE ?");
+            preparedStatement.setString(1,"%" + searchRestaurantKey + "%");
+            ResultSet resultSet;
+            resultSet =preparedStatement.executeQuery();
+            ArrayList<RestaurantDAO> result = new ArrayList<>();
+            while(resultSet.next())
+            {
+                result.add(convertResultSetToDomainModel(resultSet));
+            }
+            preparedStatement.close();
+            con.close();
+            return result;
         }
-        preparedStatement.close();
-        con.close();
-        return result;
+        else {
+            PreparedStatement preparedStatement = con.prepareStatement("SELECT DISTINCT *" +
+                    "FROM Restaurants " +
+                    "WHERE location_X*location_X + location_Y*location_Y<=28900 " +
+                    "AND restaurantName LIKE ? " +
+                    "LIMIT ?,?");
+            int offset = size * (pageNumber - 1);
+            preparedStatement.setString(1,"%" + searchRestaurantKey + "%");
+            preparedStatement.setInt(2, offset);
+            preparedStatement.setInt(3, size);
+            ResultSet resultSet;
+            resultSet =preparedStatement.executeQuery();
+            ArrayList<RestaurantDAO> result = new ArrayList<>();
+            while(resultSet.next())
+            {
+                result.add(convertResultSetToDomainModel(resultSet));
+            }
+            preparedStatement.close();
+            con.close();
+            return result;
+        }
     }
 
 

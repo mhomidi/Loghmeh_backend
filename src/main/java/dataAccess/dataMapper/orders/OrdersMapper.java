@@ -189,4 +189,17 @@ public class OrdersMapper extends Mapper<OrdersDAO, String> implements IOrdersMa
         }
     }
 
+
+    public void deleteOrderForUser(int orderId)
+            throws SQLException{
+        Connection con = ConnectionPool.getConnection();
+        PreparedStatement preparedStatement = con.prepareStatement("" +
+                "DELETE FROM Orders " +
+                "WHERE orderId=?");
+        preparedStatement.setInt(1,orderId);
+        preparedStatement.executeUpdate();
+        preparedStatement.close();
+        con.close();
+    }
+
 }

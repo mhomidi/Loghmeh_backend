@@ -151,6 +151,31 @@ public class UserManager {
     }
 
 
+    public void increaseCountFoodInUserCurrBuyBasket(String username, String foodName , int menuId , int currCount)
+        throws SQLException , NoCurrOrder{
+        int orderId = OrdersMapper.getInstance().findOrderIdOfUserCurrOrder(username);
+        OrderMenuMapper.getInstance().increaseCountFood(orderId , menuId , foodName, currCount);
+    }
+
+    public void decreaseCountFoodInUserCurrBuyBasket(String username, String foodName , int menuId , int currCount)
+            throws SQLException , NoCurrOrder{
+        int orderId = OrdersMapper.getInstance().findOrderIdOfUserCurrOrder(username);
+        if (currCount == 1){
+            //here we should remove this menuId from list user
+            //also check user has a order remove orderId row in Orders table
+            OrderMenuMapper.getInstance().deleteFoodFromOrder(orderId, menuId, foodName);
+            if (OrderMenuMapper.getInstance().orderIsEmpty(orderId)){
+                //order is empty clean order id
+                OrdersMapper.getInstance().deleteOrderForUser(orderId);
+            }
+        }
+        else{
+            OrderMenuMapper.getInstance().decreaseCountFood(orderId , menuId , foodName, currCount);
+        }
+
+    }
+
+
 
 
 

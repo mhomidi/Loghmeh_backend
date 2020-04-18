@@ -177,4 +177,77 @@ public class OrderMenuMapper extends Mapper<OrderMenuDAO, String> implements IOr
             preparedStatement.close();
             con.close();
     }
+
+    public void increaseCountFood(int orderId, int menuId, String foodName, int currCount)
+           throws SQLException{
+            Connection con = ConnectionPool.getConnection();
+            PreparedStatement preparedStatement = con.prepareStatement("" +
+                    " UPDATE OrderMenu" +
+                    " SET countFood=?" +
+                    " WHERE orderId=? AND menuId=? AND foodName=?");
+            preparedStatement.setInt(1,currCount+1);
+            preparedStatement.setInt(2,orderId);
+            preparedStatement.setInt(3,menuId);
+            preparedStatement.setString(4,foodName);
+            preparedStatement.executeUpdate();
+            preparedStatement.close();
+            con.close();
+    }
+
+
+    public void decreaseCountFood(int orderId, int menuId, String foodName, int currCount)
+            throws SQLException{
+        Connection con = ConnectionPool.getConnection();
+        PreparedStatement preparedStatement = con.prepareStatement("" +
+                " UPDATE OrderMenu" +
+                " SET countFood=?" +
+                " WHERE orderId=? AND menuId=? AND foodName=?");
+        preparedStatement.setInt(1,currCount-1);
+        preparedStatement.setInt(2,orderId);
+        preparedStatement.setInt(3,menuId);
+        preparedStatement.setString(4,foodName);
+        preparedStatement.executeUpdate();
+        preparedStatement.close();
+        con.close();
+    }
+
+    public void deleteFoodFromOrder(int orderId, int menuId, String foodName)
+            throws SQLException{
+        Connection con = ConnectionPool.getConnection();
+        PreparedStatement preparedStatement = con.prepareStatement("" +
+                " DELETE FROM OrderMenu " +
+                "WHERE orderId=? AND menuId=? AND foodName=?");
+        preparedStatement.setInt(1,orderId);
+        preparedStatement.setInt(2,menuId);
+        preparedStatement.setString(3,foodName);
+        preparedStatement.executeUpdate();
+        preparedStatement.close();
+        con.close();
+    }
+
+
+    public boolean orderIsEmpty(int orderId)throws SQLException{
+        Connection con = ConnectionPool.getConnection();
+        PreparedStatement preparedStatement = con.prepareStatement(
+                "SELECT * " +
+                        " FROM OrderMenu" +
+                        " WHERE orderId=?");
+        preparedStatement.setInt(1, orderId);
+        ResultSet resultSet;
+        resultSet =preparedStatement.executeQuery();
+        if(!resultSet.next()) {
+            System.out.println("there is no food for this order id so clean it");
+            resultSet.close();
+            preparedStatement.close();
+            con.close();
+            return true;
+        }
+        else{
+            System.out.println("find something");
+            resultSet.close();
+            preparedStatement.close();
+            con.close();
+            return false;
+        }
+    }
 }

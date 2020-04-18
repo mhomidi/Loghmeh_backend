@@ -200,6 +200,62 @@ public class UserController {
         }
     }
 
+
+
+    @RequestMapping(value = "/users/{username}/increase", method = RequestMethod.POST)
+    public ResponseEntity<?> increaseCountFood(@PathVariable(value = "username") String username ,
+                                               @RequestBody final ModifyCountFoodRequest request) {
+        try{
+            String foodName = request.getFoodName();
+            int menuId = Integer.parseInt(request.getMenuId());
+            int currCount = Integer.parseInt(request.getCurrCount());
+            SingleUserDTO user = UserManager.getInstance().getUserByID(username);
+            UserManager.getInstance().increaseCountFoodInUserCurrBuyBasket(username, foodName, menuId , currCount);
+            String success = "تعداد غذای"+ " " + foodName + " با موفقیت یکی زیاد شد";
+            Message m = new Message(success);
+            return  ResponseEntity.status(HttpStatus.OK).body(m);
+        }catch (UserNotFound e){
+            Message m = new Message(e.getMessage());
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
+        } catch (NoCurrOrder e){
+            Message m = new Message(e.getMessage());
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
+        }  catch (SQLException e){
+            Message m = new Message("خطای دیتابیس هنگام اضافه کردن تعداد غذا");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
+        }
+    }
+
+    @RequestMapping(value = "/users/{username}/decrease", method = RequestMethod.POST)
+    public ResponseEntity<?> decreaseCountFood(@PathVariable(value = "username") String username ,
+                                  @RequestBody final ModifyCountFoodRequest request) {
+        try {
+            String foodName = request.getFoodName();
+            int menuId = Integer.parseInt(request.getMenuId());
+            int currCount = Integer.parseInt(request.getCurrCount());
+            SingleUserDTO user = UserManager.getInstance().getUserByID(username);
+            UserManager.getInstance().decreaseCountFoodInUserCurrBuyBasket(username, foodName, menuId , currCount);
+            String success = "تعداد غذای"+ " " + foodName + " با موفقیت یکی کم شد";
+            Message m = new Message(success);
+            return  ResponseEntity.status(HttpStatus.OK).body(m);
+        }catch (UserNotFound e){
+            Message m = new Message(e.getMessage());
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
+        } catch (NoCurrOrder e){
+            Message m = new Message(e.getMessage());
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
+        }  catch (SQLException e){
+            Message m = new Message("خطای دیتابیس هنگام کم کردن تعداد غذا");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
+        }
+    }
+
+
+
+
+
+
+
     @RequestMapping(value = "/users/{username}/orders", method = RequestMethod.GET)
     public ResponseEntity<?>  getOrders(@PathVariable(value = "username") String username)
             throws UserNotFound {
@@ -217,64 +273,6 @@ public class UserController {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-    @RequestMapping(value = "/users/{username}/increase", method = RequestMethod.POST)
-    public ResponseEntity<?> increaseCountFood(@PathVariable(value = "username") String username ,
-                                  @RequestBody final ModifyCountFoodRequest request) {
-        Message m = new Message("غذا با موفقیت به سبد خرید اضافه شد");
-        return  ResponseEntity.status(HttpStatus.OK).body(m);
-//        try{
-//            String foodName = request.getFoodName();
-//            String info ="user " + username + "wants to  increase count of food " + foodName;
-//            System.out.println(info);
-//            User user = UserManager.getUserByID(username);
-//            user.ModifyCountFoodInCurrOrder(foodName , 1);
-//            String success = "تعداد غذای"+ " " + foodName + " با موفقیت یکی زیاد شد";
-//            System.out.println(success);
-//            Message m = new Message(success);
-//            return  ResponseEntity.status(HttpStatus.OK).body(m);
-//        }catch (UserNotFound e){
-//            Message m = new Message(e.getMessage());
-//            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
-//        }catch (FoodNotExist e) {
-//            Message m = new Message(e.getMessage());
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
-//        }
-    }
-
-    @RequestMapping(value = "/users/{username}/decrease", method = RequestMethod.POST)
-    public ResponseEntity<?> decreaseCountFood(@PathVariable(value = "username") String username ,
-                                  @RequestBody final ModifyCountFoodRequest request) {
-        Message m = new Message("غذا با موفقیت به سبد خرید اضافه شد");
-        return  ResponseEntity.status(HttpStatus.OK).body(m);
-//        try {
-//            String foodName = request.getFoodName();
-//            String info ="user " + username + "wants to  decrease count of food " + foodName;
-//            System.out.println(info);
-//            User user = UserManager.getUserByID(username);
-//            user.ModifyCountFoodInCurrOrder(foodName,-1);
-//            String success = "تعداد غذای"+ " " + foodName + " با موفقیت یکی کم شد";
-//            System.out.println(success);
-//            Message m = new Message(success);
-//            return  ResponseEntity.status(HttpStatus.OK).body(m);
-//        }catch (UserNotFound e){
-//            Message m = new Message(e.getMessage());
-//            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
-//        }catch (FoodNotExist e){
-//            Message m = new Message(e.getMessage());
-//            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
-//        }
-
-    }
 
     @RequestMapping(value = "/users/{username}/finalize", method = RequestMethod.GET)
     public ResponseEntity<?> finalizeOrder(@PathVariable(value = "username") String username) {

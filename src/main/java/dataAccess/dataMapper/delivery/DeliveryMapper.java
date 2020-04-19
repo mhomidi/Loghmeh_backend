@@ -131,8 +131,34 @@ public class DeliveryMapper extends Mapper<DeliveryDAO, String> implements IDeli
     }
 
 
+    public ArrayList<DeliveryDAO> getAllDeliveries() {
+        try {
+            ArrayList<DeliveryDAO> deliveryDAOS = new ArrayList<>();
+            Connection con = ConnectionPool.getConnection();
+            PreparedStatement preparedStatement = con.prepareStatement(
+                    "SELECT * " +
+                            " FROM Deliveries" +
+                            " WHERE active=?");
+            preparedStatement.setInt(1, 1);
+            ResultSet resultSet;
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                String deliveryId = resultSet.getString(1);
+                Double velocity = resultSet.getDouble(2);
+                Double loc_x = resultSet.getDouble(3);
+                Double loc_y = resultSet.getDouble(4);
+                deliveryDAOS.add(new DeliveryDAO(deliveryId, velocity, loc_x, loc_y));
+            }
+            resultSet.close();
+            preparedStatement.close();
+            con.close();
+            return deliveryDAOS;
+        } catch (SQLException ignored) {
+            ArrayList<DeliveryDAO> deliveries = new ArrayList<>();
+            return deliveries;
+        }
 
-
+    }
 
 
 }

@@ -219,6 +219,12 @@ public class RestaurantManager {
     }
 
 
+    public Double getDistanceRestaurantFromUser(RestaurantDAO restaurant){
+        return Math.sqrt(restaurant.getLocation_X()*restaurant.getLocation_X() +
+                restaurant.getLocation_Y()*restaurant.getLocation_Y());
+    }
+
+
 
 
 

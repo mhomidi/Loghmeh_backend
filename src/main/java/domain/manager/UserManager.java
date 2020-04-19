@@ -187,7 +187,7 @@ public class UserManager {
         //change count of food party user buy
         UserMapper.getInstance().updateUserCredit(username, userCredit - moneyToPay);
         // request and try to find delivery
-        DeliveryManager.getInstance().deliveryUserOrder(orderId, username);
+        DeliveryManager.getInstance().deliveryUserOrder(orderId);
     }
 
 

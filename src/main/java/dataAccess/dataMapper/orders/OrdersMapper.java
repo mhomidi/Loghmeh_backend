@@ -10,6 +10,7 @@ import domain.entity.Menu;
 import domain.entity.Order;
 import domain.exceptions.FoodNotExist;
 import domain.exceptions.NoCurrOrder;
+import domain.exceptions.NotFindOrder;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -36,6 +37,7 @@ public class OrdersMapper extends Mapper<OrdersDAO, String> implements IOrdersMa
                 " username VARCHAR(50),\n" +
                 " restaurantId varchar(250),\n" +
                 " status INT DEFAULT 1 ,\n" +
+                " calcDeliveryTime INT DEFAULT NULL ,\n" +
                 " deliverPersonId varchar(250) default NULL ,\n" +
                 " FOREIGN KEY(username) references Users(username) on delete cascade ,\n" +
                 " FOREIGN KEY(restaurantId) references Restaurants(restaurantId) on delete cascade ,\n" +
@@ -163,6 +165,32 @@ public class OrdersMapper extends Mapper<OrdersDAO, String> implements IOrdersMa
     }
 
 
+    public String getRestaurantIdForOrderOfUser(int orderId)
+            throws  SQLException , NotFindOrder {
+        Connection con = ConnectionPool.getConnection();
+        PreparedStatement preparedStatement = con.prepareStatement(
+                "SELECT *\n" +
+                        "FROM Orders \n" +
+                        "where orderId=?");
+        preparedStatement.setInt(1,orderId);
+        ResultSet resultSet;
+        resultSet =preparedStatement.executeQuery();
+        if(!resultSet.next()) {
+            resultSet.close();
+            preparedStatement.close();
+            con.close();
+            throw new NotFindOrder();
+        }
+        else{
+            String restaurantId = resultSet.getString(3);
+            resultSet.close();
+            preparedStatement.close();
+            con.close();
+            return restaurantId;
+        }
+    }
+
+
     public int findOrderIdOfUserCurrOrder(String username)
             throws  SQLException , NoCurrOrder {
         Connection con = ConnectionPool.getConnection();
@@ -212,6 +240,38 @@ public class OrdersMapper extends Mapper<OrdersDAO, String> implements IOrdersMa
         preparedStatement.executeUpdate();
         preparedStatement.close();
         con.close();
+    }
+
+
+    public void addCalcDeliveryTimeToOrder(int orderId , int calc){
+        try {
+            Connection con = ConnectionPool.getConnection();
+            PreparedStatement preparedStatement = con.prepareStatement("" +
+                    "UPDATE Orders SET calcDeliveryTime=? WHERE orderId=?");
+            preparedStatement.setInt(1,calc);
+            preparedStatement.setInt(2,orderId);
+            preparedStatement.executeUpdate();
+            preparedStatement.close();
+            con.close();
+        }catch (SQLException ignored){
+
+        }
+    }
+
+    public void updateOrderAddDeliveryIdChangeStatus(int orderId, String deliveryId){
+        try {
+            Connection con = ConnectionPool.getConnection();
+            PreparedStatement preparedStatement = con.prepareStatement("" +
+                    "UPDATE Orders SET deliverPersonId=?, status=? WHERE orderId=?");
+            preparedStatement.setString(1,deliveryId);
+            preparedStatement.setInt(2,3);
+            preparedStatement.setInt(3,orderId);
+            preparedStatement.executeUpdate();
+            preparedStatement.close();
+            con.close();
+        }catch (SQLException ignored){
+
+        }
     }
 
 }

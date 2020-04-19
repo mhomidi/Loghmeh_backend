@@ -178,22 +178,16 @@ public class UserManager {
             UserNotFound , NotEnoughMoneyToBuy{
         int orderId = OrdersMapper.getInstance().findOrderIdOfUserCurrOrder(username);
         Double userCredit = this.getUserCredit(username);
-        System.out.println("user credit is :");
-        System.out.println(userCredit);
-        Double moneyToPay = this.moneyUserShouldPayForCurrOrder(orderId);
+        Double moneyToPay = this.moneyUserShouldPayForCurrOrder(username);
         if (userCredit < moneyToPay) {
             throw new NotEnoughMoneyToBuy();
         }
         // time and count validation of food party in user basket
-        System.out.println("User finalize order!");
-        OrdersMapper.getInstance().changeStatusOfUserOrderToFindingDelivery(orderId); //change status of order to find delivery
+        OrdersMapper.getInstance().changeStatusOfUserOrderToFindingDelivery(orderId);
         //change count of food party user buy
-
-        //update user credit
         UserMapper.getInstance().updateUserCredit(username, userCredit - moneyToPay);
-
-
         // request and try to find delivery
+        DeliveryManager.getInstance().deliveryUserOrder(orderId, username);
     }
 
 
@@ -202,8 +196,11 @@ public class UserManager {
         return UserMapper.getInstance().getUserCredit(username);
     }
 
-    public Double moneyUserShouldPayForCurrOrder(int orderId) throws SQLException{
-        return 100000.0;
+    public Double moneyUserShouldPayForCurrOrder(String username) throws SQLException{
+        BuyBasketDTO buyBasketDTO = UserMapper.getInstance().getUserCurrBuyBasket(username);
+        System.out.println("total money user should pay is:");
+        System.out.println(buyBasketDTO.getTotalFood());
+        return buyBasketDTO.getTotalMoney();
     }
 
 
@@ -211,37 +208,37 @@ public class UserManager {
     
 
 
-    public static void  finalizeOrder(User user)
-            throws EmptyCartToFinalize, NotEnoughMoneyToBuy,
-            CountValidationErrorFoodParty, TimeValidationErrorFoodParty, RestaurantNotAvailable, RestaurantNotFound {
-        Double userCredit = user.getCredit();
-        boolean foodToBuy = user.foodToBuy();
-        Double moneyToPay = user.moneyToPayForOrder();
-
-        if (user.isChosenFoodParty() &&
-                !RestaurantManager.getInstance().foodPartyTimeValidationForFinalizing(user)) {
-            throw new TimeValidationErrorFoodParty();
-        }
-
-        if (!RestaurantManager.getInstance().foodPartyCountValidationForFinalizing(user) ){
-            throw  new CountValidationErrorFoodParty();
-        }
-        if (!foodToBuy) {
-            throw new EmptyCartToFinalize();
-        }
-        if (userCredit < moneyToPay) {
-            throw new NotEnoughMoneyToBuy();
-        }
-        System.out.println("User finalize order!");
-        user.getCurrentOrder().setStatus(DeliveryStatus.FINDING_DELIVERY); //change status of order to find delivery
-        System.out.println("here before " + user.getCurrentOrder().getRestaurantId());
-        DeliveryManager.getInstance().DeliveryUserOrder(user);
-        RestaurantManager.getInstance().changeCountOfPartyFoodUserBuy(user);
-        user.finalizeOrder(moneyToPay);
-        System.out.println("return from finalize order in userservice");
-
-
-    }
+//    public static void  finalizeOrder(User user)
+//            throws EmptyCartToFinalize, NotEnoughMoneyToBuy,
+//            CountValidationErrorFoodParty, TimeValidationErrorFoodParty, RestaurantNotAvailable, RestaurantNotFound {
+//        Double userCredit = user.getCredit();
+//        boolean foodToBuy = user.foodToBuy();
+//        Double moneyToPay = user.moneyToPayForOrder();
+//
+//        if (user.isChosenFoodParty() &&
+//                !RestaurantManager.getInstance().foodPartyTimeValidationForFinalizing(user)) {
+//            throw new TimeValidationErrorFoodParty();
+//        }
+//
+//        if (!RestaurantManager.getInstance().foodPartyCountValidationForFinalizing(user) ){
+//            throw  new CountValidationErrorFoodParty();
+//        }
+//        if (!foodToBuy) {
+//            throw new EmptyCartToFinalize();
+//        }
+//        if (userCredit < moneyToPay) {
+//            throw new NotEnoughMoneyToBuy();
+//        }
+//        System.out.println("User finalize order!");
+//        user.getCurrentOrder().setStatus(DeliveryStatus.FINDING_DELIVERY); //change status of order to find delivery
+//        System.out.println("here before " + user.getCurrentOrder().getRestaurantId());
+//        DeliveryManager.getInstance().DeliveryUserOrder(user);
+//        RestaurantManager.getInstance().changeCountOfPartyFoodUserBuy(user);
+//        user.finalizeOrder(moneyToPay);
+//        System.out.println("return from finalize order in userservice");
+//
+//
+//    }
 
     public static ArrayList<User> getAllUsers(){
         return Loghmeh.getInstance().getUsers();

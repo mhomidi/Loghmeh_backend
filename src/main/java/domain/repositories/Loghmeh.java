@@ -67,20 +67,6 @@ public class Loghmeh {
 
     public static void initialize(){
         RestaurantManager.getInstance().getRestaurantsFromUrl();
-        String restaurantUrl = "http://138.197.181.131:8080/restaurants";
-        System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
-        System.out.println("start adding restaurant");
-        try {
-            String jsonRestaurants = Request.get(restaurantUrl);
-            JSONParser parser = new JSONParser();
-            JSONArray jsonArray = new JSONArray();
-            jsonArray = (JSONArray) parser.parse(jsonRestaurants);
-            addRestaurantFromJSONArray(instance, jsonArray);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        System.out.println("finish adding restaurant");
-        System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n\n\n");
     }
 
     public void setStartGetFoodParty(LocalTime startGetFoodParty) {
@@ -121,15 +107,6 @@ public class Loghmeh {
 
 
 
-    public static void addRestaurantFromJSONArray(Loghmeh system,JSONArray jsonArray) {
-        for(int i=0;i<jsonArray.size();i++){
-            try{
-                system.addRestaurant((JSONObject)jsonArray.get(i));
-            }catch (RestaurantExist e){
-                System.out.println(e.getMessage());
-            }
-        }
-    }
 
 
 
@@ -150,10 +127,7 @@ public class Loghmeh {
         return this.foodParties;
     }
 
-    public void addUser(User new_user){
-        users.add(new_user);
-        System.out.println("new user added");
-    }
+
 
     public boolean isRestaurantExist(String id){
         ArrayList<Restaurant> restaurants = Loghmeh.getInstance().getRestaurants();
@@ -176,25 +150,9 @@ public class Loghmeh {
         restaurants.add(new_restaurant);
     }
 
-    public Restaurant getRestaurantWithId(String id){
-        for (Restaurant restaurant:restaurants){
-            if (restaurant.getId().equals(id)){
-                return restaurant;
-            }
-        }
-        return null;
-    }
 
 
-    public ArrayList<Restaurant> getRestaurantsAvailableForUser(){
-        ArrayList<Restaurant> result = new ArrayList<Restaurant>();
-        for (Restaurant restaurant:restaurants){
-            if(restaurant.distanceFromUser()<=170){
-                result.add(restaurant);
-            }
-        }
-        return result;
-    }
+
 
     public FoodParty findRestaurantInFoodParty(String restaurantId){
         for(int i=0;i<foodParties.size();i++){
@@ -205,20 +163,8 @@ public class Loghmeh {
         return null;
     }
 
-    public boolean restaurantAvailable(Restaurant restaurant){
-        return (restaurant.distanceFromUser()<=170);
-    }
 
 
-    public boolean isMenuFoodPartyOfRestaurant(Restaurant restaurant , String foodName){
-        FoodParty foodParty = findRestaurantInFoodParty(restaurant.getId());
-        if(foodParty!=null && foodParty.hasFood(foodName)){
-            return true;
-        }
-        else{
-            return false;
-        }
-    }
 
     public void addRestaurant(JSONObject jsonObject) throws RestaurantExist {
         String new_restaurant_name = jsonObject.get("name").toString();

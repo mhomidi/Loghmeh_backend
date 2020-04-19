@@ -175,19 +175,23 @@ public class UserManager {
 
 
     public void finalizeOrder(String username) throws SQLException , NoCurrOrder ,
-            UserNotFound , NotEnoughMoneyToBuy{
+            UserNotFound , NotEnoughMoneyToBuy, TimeValidationErrorFoodParty, CountValidationErrorFoodParty{
         int orderId = OrdersMapper.getInstance().findOrderIdOfUserCurrOrder(username);
         Double userCredit = this.getUserCredit(username);
         Double moneyToPay = this.moneyUserShouldPayForCurrOrder(username);
         if (userCredit < moneyToPay) {
             throw new NotEnoughMoneyToBuy();
         }
-        // time and count validation of food party in user basket
-        OrdersMapper.getInstance().changeStatusOfUserOrderToFindingDelivery(orderId);
-        //change count of food party user buy
-        UserMapper.getInstance().updateUserCredit(username, userCredit - moneyToPay);
-        // request and try to find delivery
-        DeliveryManager.getInstance().deliveryUserOrder(orderId);
+        boolean foodPartyCheck = RestaurantManager.getInstance().CountAndTimeValidationForFoodPartyOfUserOrder(orderId);
+        System.out.println("food party check:");
+        System.out.println(foodPartyCheck);
+        if (foodPartyCheck) {
+            OrdersMapper.getInstance().changeStatusOfUserOrderToFindingDelivery(orderId);
+            //change count of food party user buy
+            UserMapper.getInstance().updateUserCredit(username, userCredit - moneyToPay);
+            // request and try to find delivery
+            DeliveryManager.getInstance().deliveryUserOrder(orderId);
+        }
     }
 
 

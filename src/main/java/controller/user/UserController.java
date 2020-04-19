@@ -298,6 +298,12 @@ public class UserController {
         }catch (NotEnoughMoneyToBuy e){
             Message m = new Message(e.getMessage());
             return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
+        }catch (TimeValidationErrorFoodParty e){
+            Message m = new Message(e.getMessage());
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
+        }catch (CountValidationErrorFoodParty e){
+            Message m = new Message(e.getMessage());
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
         }
 
     }

@@ -226,6 +226,13 @@ public class RestaurantManager {
 
 
 
+    public boolean CountAndTimeValidationForFoodPartyOfUserOrder(int orderId)
+        throws SQLException , TimeValidationErrorFoodParty, CountValidationErrorFoodParty{
+        return RestaurantMapper.getInstance().CountAndTimeValidationForFoodPartyOfUserOrder(orderId);
+    }
+
+
+
 
 
 

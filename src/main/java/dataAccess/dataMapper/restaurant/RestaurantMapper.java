@@ -11,6 +11,7 @@ import domain.databaseEntity.UserDAO;
 import domain.entity.Menu;
 import domain.exceptions.*;
 
+import javax.print.DocFlavor;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -288,6 +289,50 @@ public class RestaurantMapper extends Mapper<RestaurantDAO, String> implements I
             return true;
         }
 
+    }
+
+
+
+
+    public boolean CountAndTimeValidationForFoodPartyOfUserOrder(int orderId)
+            throws SQLException , TimeValidationErrorFoodParty , CountValidationErrorFoodParty{
+        Connection con = ConnectionPool.getConnection();
+        PreparedStatement preparedStatement = con.prepareStatement(
+                "SELECT foodPartyUserChoose.menuId, foodPartyUserChoose.countFood as userCountFood ," +
+                        " FoodPartyMenus.available , FoodPartyMenus.FoodCount\n" +
+                        "FROM\n" +
+                        "(SELECT OrderMenu.menuId , OrderMenu.foodName , OrderMenu.countFood\n" +
+                        "from OrderMenu\n" +
+                        "Where OrderMenu.orderId = ? and OrderMenu.isFoodParty=?) as foodPartyUserChoose join FoodPartyMenus\n" +
+                        "on FoodPartyMenus.menuId = foodPartyUserChoose.menuId");
+        preparedStatement.setInt(1,orderId);
+        preparedStatement.setInt(2,1);
+        ResultSet resultSet;
+        resultSet =preparedStatement.executeQuery();
+        while(resultSet.next()) {
+            int menuId = resultSet.getInt(1);
+            int userCountFood = resultSet.getInt(2);
+            boolean available = resultSet.getBoolean(3);
+            int foodCount = resultSet.getInt(4);
+            if (!available){
+                resultSet.close();
+                preparedStatement.close();
+                con.close();
+                System.out.println("time validation error for " + Integer.toString(menuId));
+                throw new TimeValidationErrorFoodParty();
+            }
+            if (userCountFood > foodCount){
+                resultSet.close();
+                preparedStatement.close();
+                con.close();
+                System.out.println("count validation error for " + Integer.toString(menuId));
+                throw new CountValidationErrorFoodParty();
+            }
+        }
+        resultSet.close();
+        preparedStatement.close();
+        con.close();
+        return true;
     }
 
 

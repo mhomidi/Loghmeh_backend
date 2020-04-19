@@ -281,7 +281,7 @@ public class OrdersMapper extends Mapper<OrdersDAO, String> implements IOrdersMa
             PreparedStatement preparedStatement = con.prepareStatement(
                     "SELECT distinct Orders.orderId\n" +
                             "FROM Orders\n" +
-                            "WHERE Orders.orderId = ?");
+                            "WHERE status=?");
             preparedStatement.setInt(1, 2);
             ResultSet resultSet;
             resultSet = preparedStatement.executeQuery();

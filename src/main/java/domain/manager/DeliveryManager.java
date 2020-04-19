@@ -180,4 +180,10 @@ public class DeliveryManager {
     }
 
 
+
+    public ArrayList<Integer> getAllUndeliveredOrders(){
+        return OrdersMapper.getInstance().getAllUndeliveredOrders();
+    }
+
+
 }

@@ -274,4 +274,29 @@ public class OrdersMapper extends Mapper<OrdersDAO, String> implements IOrdersMa
         }
     }
 
+
+    public ArrayList<Integer> getAllUndeliveredOrders() {
+        try {
+            Connection con = ConnectionPool.getConnection();
+            PreparedStatement preparedStatement = con.prepareStatement(
+                    "SELECT distinct Orders.orderId\n" +
+                            "FROM Orders\n" +
+                            "WHERE Orders.orderId = ?");
+            preparedStatement.setInt(1, 2);
+            ResultSet resultSet;
+            resultSet = preparedStatement.executeQuery();
+            ArrayList<Integer> res = new ArrayList<>();
+            while (resultSet.next()) {
+                int id = resultSet.getInt(1);
+                res.add(id);
+            }
+            resultSet.close();
+            preparedStatement.close();
+            con.close();
+            return res;
+        } catch (SQLException e) {
+            ArrayList<Integer> err = new ArrayList<>();
+            return err;
+        }
+    }
 }

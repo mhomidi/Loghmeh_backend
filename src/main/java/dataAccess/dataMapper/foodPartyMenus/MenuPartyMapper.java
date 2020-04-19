@@ -129,6 +129,33 @@ public class MenuPartyMapper extends Mapper<FoodPartyDAO, String> implements IMe
     }
 
 
+    public void DecreaseCountFoodParty(int menuId , int dec_value)throws SQLException {
+        Connection con = ConnectionPool.getConnection();
+        PreparedStatement preparedStatement = con.prepareStatement("UPDATE FoodPartyMenus" +
+                " SET FoodCount=FoodCount - ? WHERE menuId=? AND available=?");
+        preparedStatement.setInt(1, dec_value);
+        preparedStatement.setInt(2, menuId);
+        preparedStatement.setBoolean(3, true);
+        preparedStatement.executeUpdate();
+        preparedStatement.close();
+        con.close();
+    }
+
+
+
+    public void makeUnavailableIfCountFoodPartyZero(int menuId)throws SQLException{
+        Connection con = ConnectionPool.getConnection();
+        PreparedStatement preparedStatement = con.prepareStatement("UPDATE FoodPartyMenus" +
+                " SET available=? WHERE menuId=? AND FoodCount=?");
+        preparedStatement.setBoolean(1,false);
+        preparedStatement.setInt(2, menuId);
+        preparedStatement.setInt(3,0);
+        preparedStatement.executeUpdate();
+        preparedStatement.close();
+        con.close();
+    }
+
+
 
 
 

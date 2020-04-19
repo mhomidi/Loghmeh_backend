@@ -7,6 +7,7 @@ import domain.FrontEntity.RestaurantInfoDTO;
 import dataAccess.dataMapper.foodPartyMenus.MenuPartyMapper;
 import dataAccess.dataMapper.menu.MenuMapper;
 import dataAccess.dataMapper.restaurant.RestaurantMapper;
+import domain.databaseEntity.DeliveryDAO;
 import domain.databaseEntity.FoodPartyDAO;
 import domain.databaseEntity.MenuDAO;
 import domain.databaseEntity.RestaurantDAO;
@@ -23,6 +24,7 @@ import tools.Request;
 import java.sql.SQLException;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
@@ -229,6 +231,15 @@ public class RestaurantManager {
     public boolean CountAndTimeValidationForFoodPartyOfUserOrder(int orderId)
         throws SQLException , TimeValidationErrorFoodParty, CountValidationErrorFoodParty{
         return RestaurantMapper.getInstance().CountAndTimeValidationForFoodPartyOfUserOrder(orderId);
+    }
+
+
+    public void updateCountFoodPartyWhenUserChoose(int orderId)throws SQLException{
+        HashMap<Integer, Integer> foods = RestaurantMapper.getInstance().getFoodPartiesWithCountInUserOrder(orderId);
+        for (Map.Entry<Integer,Integer> entry : foods.entrySet()){
+            MenuPartyMapper.getInstance().DecreaseCountFoodParty(entry.getKey(), entry.getValue());
+//            MenuPartyMapper.getInstance().makeUnavailableIfCountFoodPartyZero(entry.getKey());
+        }
     }
 
 

@@ -6,6 +6,7 @@ import dataAccess.dataMapper.Mapper;
 import domain.FrontEntity.FoodPartyDTO;
 import domain.FrontEntity.MenuDTO;
 import domain.FrontEntity.RestaurantMenuDTO;
+import domain.databaseEntity.DeliveryDAO;
 import domain.databaseEntity.RestaurantDAO;
 import domain.databaseEntity.UserDAO;
 import domain.entity.Menu;
@@ -17,6 +18,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class RestaurantMapper extends Mapper<RestaurantDAO, String> implements IRestaurantMapper {
 
@@ -333,6 +335,30 @@ public class RestaurantMapper extends Mapper<RestaurantDAO, String> implements I
         preparedStatement.close();
         con.close();
         return true;
+    }
+
+
+    public HashMap<Integer, Integer> getFoodPartiesWithCountInUserOrder(int orderId)
+    throws SQLException{
+        HashMap<Integer, Integer> res = new HashMap<Integer, Integer>();
+        Connection con = ConnectionPool.getConnection();
+        PreparedStatement preparedStatement = con.prepareStatement(
+                "SELECT menuId ,countFood " +
+                        "FROM OrderMenu\n" +
+                        "Where orderId = ? and isFoodParty=?");
+        preparedStatement.setInt(1,orderId);
+        preparedStatement.setBoolean(2,true);
+        ResultSet resultSet;
+        resultSet =preparedStatement.executeQuery();
+        while(resultSet.next()) {
+            int menuId = resultSet.getInt(1);
+            int count = resultSet.getInt(2);
+            res.put(menuId, count);
+        }
+        resultSet.close();
+        preparedStatement.close();
+        con.close();
+        return res;
     }
 
 

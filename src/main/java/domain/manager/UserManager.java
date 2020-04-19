@@ -187,7 +187,7 @@ public class UserManager {
         System.out.println(foodPartyCheck);
         if (foodPartyCheck) {
             OrdersMapper.getInstance().changeStatusOfUserOrderToFindingDelivery(orderId);
-            //change count of food party user buy
+            RestaurantManager.getInstance().updateCountFoodPartyWhenUserChoose(orderId);
             UserMapper.getInstance().updateUserCredit(username, userCredit - moneyToPay);
             // request and try to find delivery
             DeliveryManager.getInstance().deliveryUserOrder(orderId);

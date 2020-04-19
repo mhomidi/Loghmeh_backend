@@ -140,11 +140,9 @@ public class UserManager {
     }
 
 
-
     public BuyBasketDTO getUserCurrBuyBasket(String username) throws SQLException{
         return UserMapper.getInstance().getUserCurrBuyBasket(username);
     }
-
 
     public AllUserOrdersDTO getUserAllOrders(String username) throws SQLException{
         return null;
@@ -176,6 +174,37 @@ public class UserManager {
     }
 
 
+    public void finalizeOrder(String username) throws SQLException , NoCurrOrder ,
+            UserNotFound , NotEnoughMoneyToBuy{
+        int orderId = OrdersMapper.getInstance().findOrderIdOfUserCurrOrder(username);
+        Double userCredit = this.getUserCredit(username);
+        System.out.println("user credit is :");
+        System.out.println(userCredit);
+        Double moneyToPay = this.moneyUserShouldPayForCurrOrder(orderId);
+        if (userCredit < moneyToPay) {
+            throw new NotEnoughMoneyToBuy();
+        }
+        // time and count validation of food party in user basket
+        System.out.println("User finalize order!");
+        OrdersMapper.getInstance().changeStatusOfUserOrderToFindingDelivery(orderId); //change status of order to find delivery
+        //change count of food party user buy
+
+        //update user credit
+        UserMapper.getInstance().updateUserCredit(username, userCredit - moneyToPay);
+
+
+        // request and try to find delivery
+    }
+
+
+
+    public Double getUserCredit(String username)throws SQLException , UserNotFound{
+        return UserMapper.getInstance().getUserCredit(username);
+    }
+
+    public Double moneyUserShouldPayForCurrOrder(int orderId) throws SQLException{
+        return 100000.0;
+    }
 
 
 

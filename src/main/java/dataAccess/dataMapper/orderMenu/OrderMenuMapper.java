@@ -250,4 +250,5 @@ public class OrderMenuMapper extends Mapper<OrderMenuDAO, String> implements IOr
             return false;
         }
     }
+
 }

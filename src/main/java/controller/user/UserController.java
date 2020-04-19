@@ -256,6 +256,9 @@ public class UserController {
 
 
 
+
+
+
     @RequestMapping(value = "/users/{username}/orders", method = RequestMethod.GET)
     public ResponseEntity<?>  getOrders(@PathVariable(value = "username") String username)
             throws UserNotFound {
@@ -276,43 +279,27 @@ public class UserController {
 
     @RequestMapping(value = "/users/{username}/finalize", method = RequestMethod.GET)
     public ResponseEntity<?> finalizeOrder(@PathVariable(value = "username") String username) {
-//        try {
-//            String info = "user " + username + " wants to finalize his/her order";
-//            System.out.println(info);
-//            User user = UserManager.getUserByID(username);
-//            UserManager.finalizeOrder(user);
-//        }
-//        catch (UserNotFound e){
-//            Message m = new Message(e.getMessage());
-//            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
-//
-//        }catch (NotEnoughMoneyToBuy e){
-//            Message m = new Message(e.getMessage());
-//            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
-//        }
-//        catch (EmptyCartToFinalize e){
-//            Message m = new Message(e.getMessage());
-//            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
-//        }
-//        catch (CountValidationErrorFoodParty e){
-//            Message m = new Message(e.getMessage());
-//            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
-//        }
-//        catch (TimeValidationErrorFoodParty e){
-//            Message m = new Message(e.getMessage());
-//            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
-//        }
-//        catch (RestaurantNotAvailable e) {
-//            Message m = new Message(e.getMessage());
-//            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
-//        }
-//        catch (RestaurantNotFound e) {
-//            Message m = new Message(e.getMessage());
-//            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
-//        }
-        Message m = new Message("سفارش با موفقیت ثبت شد.آماده جهت ارسال پیک...");
-        System.out.println(m.getMessage());
-        return  ResponseEntity.status(HttpStatus.OK).body(m);
+        try {
+            SingleUserDTO user = UserManager.getInstance().getUserByID(username);
+            UserManager.getInstance().finalizeOrder(username);
+            Message m = new Message("سفارش با موفقیت ثبت شد.آماده جهت ارسال پیک...");
+            System.out.println(m.getMessage());
+            return  ResponseEntity.status(HttpStatus.OK).body(m);
+
+        }catch (UserNotFound e){
+            Message m = new Message(e.getMessage());
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
+        }catch (SQLException e){
+            Message m = new Message("خطای دیتابیس هنگام نهایی کردن سفارش");
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
+        }catch (NoCurrOrder e){
+            Message m = new Message(e.getMessage());
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
+        }catch (NotEnoughMoneyToBuy e){
+            Message m = new Message(e.getMessage());
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
+        }
+
     }
 
 

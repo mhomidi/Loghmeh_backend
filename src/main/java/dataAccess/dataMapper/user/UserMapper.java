@@ -8,6 +8,7 @@ import domain.FrontEntity.FoodInBasketDTO;
 import domain.FrontEntity.MenuDTO;
 import domain.FrontEntity.RestaurantMenuDTO;
 import domain.databaseEntity.UserDAO;
+import domain.exceptions.NoCurrOrder;
 import domain.exceptions.UserAlreadyExists;
 import domain.exceptions.UserNotFound;
 
@@ -216,4 +217,30 @@ public class UserMapper extends Mapper<UserDAO, String> implements IUserMapper {
         con.close();
         return buyBasketDTO;
     }
+
+
+    public Double getUserCredit(String username) throws SQLException , UserNotFound{
+        Connection con = ConnectionPool.getConnection();
+        PreparedStatement preparedStatement = con.prepareStatement(
+                "SELECT credit\n" +
+                        "FROM Users \n" +
+                        "where username=?");
+        preparedStatement.setString(1, username);
+        ResultSet resultSet;
+        resultSet =preparedStatement.executeQuery();
+        if(!resultSet.next()) {
+            resultSet.close();
+            preparedStatement.close();
+            con.close();
+            throw new UserNotFound();
+        }
+        else{
+            Double credit = resultSet.getDouble(1);
+            resultSet.close();
+            preparedStatement.close();
+            con.close();
+            return credit;
+        }
+    }
+
 }

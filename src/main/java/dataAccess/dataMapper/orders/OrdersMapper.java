@@ -202,4 +202,16 @@ public class OrdersMapper extends Mapper<OrdersDAO, String> implements IOrdersMa
         con.close();
     }
 
+
+    public void changeStatusOfUserOrderToFindingDelivery(int orderId) throws SQLException{
+        Connection con = ConnectionPool.getConnection();
+        PreparedStatement preparedStatement = con.prepareStatement("" +
+                "UPDATE Orders SET status=? WHERE orderId=?");
+        preparedStatement.setInt(1,2);
+        preparedStatement.setInt(2,orderId);
+        preparedStatement.executeUpdate();
+        preparedStatement.close();
+        con.close();
+    }
+
 }

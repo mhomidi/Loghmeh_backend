@@ -46,5 +46,15 @@ public class FoodInBasketDTO {
     public int getMenuId() {
         return menuId;
     }
+
+    @Override
+    public String toString() {
+        return "FoodInBasketDTO{" +
+                "menuId=" + menuId +
+                ", foodName='" + foodName + '\'' +
+                ", countFood=" + countFood +
+                ", foodPrice=" + foodPrice +
+                '}';
+    }
 }
 

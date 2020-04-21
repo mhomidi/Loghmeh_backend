@@ -5,9 +5,7 @@ import com.google.common.hash.Hashing;
 import dataAccess.dataMapper.orderMenu.OrderMenuMapper;
 import dataAccess.dataMapper.orders.OrdersMapper;
 import dataAccess.dataMapper.user.UserMapper;
-import domain.FrontEntity.AllUserOrdersDTO;
-import domain.FrontEntity.BuyBasketDTO;
-import domain.FrontEntity.SingleUserDTO;
+import domain.FrontEntity.*;
 import domain.databaseEntity.OrderMenuDAO;
 import domain.databaseEntity.OrdersDAO;
 import domain.databaseEntity.UserDAO;
@@ -145,7 +143,22 @@ public class UserManager {
     }
 
     public AllUserOrdersDTO getUserAllOrders(String username) throws SQLException{
-        return null;
+        ArrayList<SingleUserOrderDTO> orders = OrdersMapper.getInstance().getAllUserOrders(username);
+        ArrayList<SingleUserOrderDTO> userOrders = new ArrayList<SingleUserOrderDTO>();
+        for (SingleUserOrderDTO order: orders){
+            ArrayList<FoodInBasketDTO> foods = OrderMenuMapper.getInstance().getFoodsOfOrder(order.getOrderId());
+            int totalFood= 0;
+            Double totalMoney = 0.0;
+            for (FoodInBasketDTO f:foods){
+                totalFood += f.getCountFood();
+                totalMoney += f.getCountFood() * f.getFoodPrice();
+            }
+            userOrders.add(new SingleUserOrderDTO(order.getOrderId(),
+                    order.getRestaurantId(), order.getRestaurantName(),
+                    order.getStatus(), order.getTotalDeliveryTime(), order.getDeliverPersonId(), foods,totalFood, totalMoney ));
+        }
+
+        return new AllUserOrdersDTO(username,userOrders);
     }
 
 

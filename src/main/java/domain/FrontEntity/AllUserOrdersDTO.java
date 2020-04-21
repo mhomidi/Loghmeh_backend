@@ -9,6 +9,18 @@ public class AllUserOrdersDTO {
     private String username;
     ArrayList<SingleUserOrderDTO> orders;
 
+    public AllUserOrdersDTO(String username){
+        this.username = username;
+        this.orders = new ArrayList<SingleUserOrderDTO>();
+    }
+
+
+    public AllUserOrdersDTO(String username, ArrayList<SingleUserOrderDTO> orders){
+        this.username = username;
+        this.orders = new ArrayList<SingleUserOrderDTO>();
+        this.orders = orders;
+    }
+
     public void setUsername(String username) {
         this.username = username;
     }

@@ -260,10 +260,10 @@ public class UserController {
 
 
     @RequestMapping(value = "/users/{username}/orders", method = RequestMethod.GET)
-    public ResponseEntity<?>  getOrders(@PathVariable(value = "username") String username)
-            throws UserNotFound {
+    public ResponseEntity<?>  getOrders(@PathVariable(value = "username") String username) {
         try {
             SingleUserDTO user = UserManager.getInstance().getUserByID(username);
+            System.out.println("return all orders");
             AllUserOrdersDTO allUserOrdersDTO = UserManager.getInstance().getUserAllOrders(username);
             return  ResponseEntity.status(HttpStatus.OK).body(allUserOrdersDTO);
         }

@@ -3,6 +3,8 @@ package dataAccess.dataMapper.orderMenu;
 
 import dataAccess.ConnectionPool;
 import dataAccess.dataMapper.Mapper;
+import domain.FrontEntity.BuyBasketDTO;
+import domain.FrontEntity.FoodInBasketDTO;
 import domain.databaseEntity.OrderMenuDAO;
 import domain.databaseEntity.OrdersDAO;
 import domain.entity.Menu;
@@ -249,6 +251,30 @@ public class OrderMenuMapper extends Mapper<OrderMenuDAO, String> implements IOr
             con.close();
             return false;
         }
+    }
+
+
+    public ArrayList<FoodInBasketDTO> getFoodsOfOrder(int orderId)throws SQLException {
+        ArrayList<FoodInBasketDTO> foodInOrder = new ArrayList<>();
+        Connection con = ConnectionPool.getConnection();
+        PreparedStatement preparedStatement = con.prepareStatement(
+                "SELECT OrderMenu.menuId, OrderMenu.foodName, OrderMenu.price, OrderMenu.countFood\n" +
+                        "FROM OrderMenu \n" +
+                        "WHERE OrderMenu.orderId=?");
+        preparedStatement.setInt(1, orderId);
+        ResultSet resultSet;
+        resultSet = preparedStatement.executeQuery();
+        while (resultSet.next()) {
+            int menuId = resultSet.getInt(1);
+            String foodName = resultSet.getString(2);
+            Double price = resultSet.getDouble(3);
+            int count = resultSet.getInt(4);
+            foodInOrder.add(new FoodInBasketDTO(menuId, foodName, count, price));
+        }
+        resultSet.close();
+        preparedStatement.close();
+        con.close();
+        return foodInOrder;
     }
 
 

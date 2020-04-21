@@ -4,6 +4,7 @@ package dataAccess.dataMapper.orders;
 import dataAccess.ConnectionPool;
 import dataAccess.dataMapper.Mapper;
 import domain.FrontEntity.MenuDTO;
+import domain.FrontEntity.SingleUserOrderDTO;
 import domain.databaseEntity.FoodPartyDAO;
 import domain.databaseEntity.OrdersDAO;
 import domain.entity.Menu;
@@ -298,5 +299,35 @@ public class OrdersMapper extends Mapper<OrdersDAO, String> implements IOrdersMa
             ArrayList<Integer> err = new ArrayList<>();
             return err;
         }
+    }
+
+
+
+
+    public ArrayList<SingleUserOrderDTO> getAllUserOrders(String username)throws SQLException{
+        ArrayList<SingleUserOrderDTO> orders = new ArrayList<SingleUserOrderDTO>();
+        Connection con = ConnectionPool.getConnection();
+        PreparedStatement preparedStatement = con.prepareStatement(
+                " SELECT distinct orderId, Orders.restaurantId, Restaurants.restaurantName," +
+                        " Orders.status, Orders.calcDeliveryTime,  Orders.deliverPersonId" +
+                        " FROM Orders , Restaurants\n" +
+                        "where Orders.username =? and Restaurants.restaurantId = Orders.restaurantId");
+        preparedStatement.setString(1,username);
+        ResultSet resultSet;
+        resultSet = preparedStatement.executeQuery();
+        while (resultSet.next()) {
+            int orderId = resultSet.getInt(1);
+            String restaurantId = resultSet.getString(2);
+            String restaurantName = resultSet.getString(3);
+            int status = resultSet.getInt(4);
+            int calcDeliveryTime = resultSet.getInt(5);
+            String  deliverPersonId = resultSet.getString(6);
+            orders.add(new SingleUserOrderDTO(orderId, restaurantId, restaurantName, status,
+                    calcDeliveryTime, deliverPersonId));
+        }
+        resultSet.close();
+        preparedStatement.close();
+        con.close();
+        return orders;
     }
 }

@@ -30,7 +30,8 @@ public class UserMapper extends Mapper<UserDAO, String> implements IUserMapper {
 
     private UserMapper() throws SQLException {
         Connection con = ConnectionPool.getConnection();
-        PreparedStatement createTableStatement = con.prepareStatement("CREATE TABLE IF NOT EXISTS Users (username CHAR(20),\n" +
+        PreparedStatement createTableStatement = con.prepareStatement("CREATE TABLE IF NOT EXISTS Users (" +
+                "    username VARCHAR(100),\n" +
                 "    firstname VARCHAR(200) CHARACTER SET utf8 COLLATE utf8_unicode_ci,\n" +
                 "    lastname VARCHAR(200) CHARACTER SET utf8 COLLATE utf8_unicode_ci,\n" +
                 "    password text,\n" +

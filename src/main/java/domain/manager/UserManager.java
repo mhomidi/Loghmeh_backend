@@ -52,11 +52,11 @@ public class UserManager {
                 Hashing.sha256().hashString(user.getPassword(), StandardCharsets.UTF_8)
                         .toString()
         );
-        dataAccess.dataMapper.user.UserMapper.getInstance().registerUser(user);
+        UserMapper.getInstance().registerUser(user);
     }
 
     public  SingleUserDTO getUserByID(String username) throws UserNotFound , SQLException {
-        UserDAO userDAO = dataAccess.dataMapper.user.UserMapper.getInstance().getUserById(username);
+        UserDAO userDAO = UserMapper.getInstance().getUserById(username);
         return new SingleUserDTO(userDAO.getUsername(), userDAO.getFirstName(), userDAO.getLastName(),
                 userDAO.getEmail() , userDAO.getPhone() , userDAO.getCredit());
     }

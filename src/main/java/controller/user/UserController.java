@@ -42,15 +42,22 @@ public class UserController {
     public ResponseEntity<?> signup(@RequestBody final SignupRequest request)  {
         try{
             System.out.println(request.getPhone());
+            System.out.println(request.getEmail());
+            System.out.println(request.getPassword());
+            System.out.println(request.getFirstName());
+            System.out.println(request.getLastName());
             UserManager.getInstance().registerUser(
                     new UserDAO(request.getFirstName(),
                             request.getLastName(),
                             request.getEmail(),
                             request.getPassword(),
                             request.getEmail(),
-                            request.getPhone(), 0.0));
+                            request.getPhone(),
+                            0.0));
 
+            System.out.println("1");
             String token = UserManager.getInstance().login(request.getEmail(), request.getPassword());
+            System.out.println(token);
             return  ResponseEntity.status(HttpStatus.OK).body(new TokenResponse(token , request.getEmail()));
         }catch (UserAlreadyExists e){
             Message m = new Message(e.getMessage());
@@ -71,12 +78,15 @@ public class UserController {
     @RequestMapping(value = "/users/{username}", method = RequestMethod.GET)
     public ResponseEntity<?>  getUser(@PathVariable(value = "username") String username) {
         try {
+            System.out.println(username);
             return ResponseEntity.status(HttpStatus.OK).body(UserManager.getInstance().getUserByID(username));
         } catch (UserNotFound e) {
             Message m = new Message(e.getMessage());
+            System.out.println(m.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
         } catch (SQLException e) {
             Message m = new Message("خطای دیتابیس هنگام ورود به صفحه ی کاربری");
+            System.out.println(m.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
         }
     }

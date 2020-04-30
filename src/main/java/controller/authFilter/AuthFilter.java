@@ -24,6 +24,7 @@ public class AuthFilter implements Filter {
 
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
             throws IOException, ServletException {
+        System.out.println("JWT  HTTP Request: ");
         try {
             String uri = ((HttpServletRequest)servletRequest).getRequestURI();
             if(uri.equals("/login") || uri.equals("/signup")){
@@ -39,6 +40,7 @@ public class AuthFilter implements Filter {
                 DecodedJWT jwt;
                 jwt = verifier.verify(header);
                 String id =  jwt.getClaim("id").asString();
+                System.out.println("id in jwt filter: "  + id);
                 servletRequest.setAttribute("id", id);
                 chain.doFilter(servletRequest, servletResponse);
             }

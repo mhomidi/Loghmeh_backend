@@ -45,13 +45,13 @@ public class UserController {
             UserManager.getInstance().registerUser(
                     new UserDAO(request.getFirstName(),
                             request.getLastName(),
-                            request.getUsername(),
+                            request.getEmail(),
                             request.getPassword(),
                             request.getEmail(),
                             request.getPhone(), 0.0));
 
-            String token = UserManager.getInstance().login(request.getUsername(), request.getPassword());
-            return  ResponseEntity.status(HttpStatus.OK).body(new TokenResponse(token , request.getUsername()));
+            String token = UserManager.getInstance().login(request.getEmail(), request.getPassword());
+            return  ResponseEntity.status(HttpStatus.OK).body(new TokenResponse(token , request.getEmail()));
         }catch (UserAlreadyExists e){
             Message m = new Message(e.getMessage());
             return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);

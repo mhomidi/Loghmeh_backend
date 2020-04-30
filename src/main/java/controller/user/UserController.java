@@ -55,7 +55,6 @@ public class UserController {
                             request.getPhone(),
                             0.0));
 
-            System.out.println("1");
             String token = UserManager.getInstance().login(request.getEmail(), request.getPassword());
             System.out.println(token);
             return  ResponseEntity.status(HttpStatus.OK).body(new TokenResponse(token , request.getEmail()));
@@ -76,8 +75,10 @@ public class UserController {
     }
 
     @RequestMapping(value = "/users/{username}", method = RequestMethod.GET)
-    public ResponseEntity<?>  getUser(@PathVariable(value = "username") String username) {
+    public ResponseEntity<?>  getUser(@PathVariable(value = "username") String username,
+                                      @RequestAttribute("id") String loginUser ) {
         try {
+            System.out.println("login user is " + loginUser );
             System.out.println(username);
             return ResponseEntity.status(HttpStatus.OK).body(UserManager.getInstance().getUserByID(username));
         } catch (UserNotFound e) {

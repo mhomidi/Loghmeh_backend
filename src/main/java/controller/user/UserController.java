@@ -269,15 +269,10 @@ public class UserController {
 
 
 
-
-
-
-
-
-
-    @RequestMapping(value = "/users/{username}/orders", method = RequestMethod.GET)
-    public ResponseEntity<?>  getOrders(@PathVariable(value = "username") String username) {
+    @RequestMapping(value = "/users/orders", method = RequestMethod.GET)
+    public ResponseEntity<?>  getOrders(@RequestAttribute("id") String username) {
         try {
+            System.out.println("login user is " + username );
             SingleUserDTO user = UserManager.getInstance().getUserByID(username);
             System.out.println("return all orders");
             AllUserOrdersDTO allUserOrdersDTO = UserManager.getInstance().getUserAllOrders(username);
@@ -293,9 +288,10 @@ public class UserController {
     }
 
 
-    @RequestMapping(value = "/users/{username}/finalize", method = RequestMethod.GET)
-    public ResponseEntity<?> finalizeOrder(@PathVariable(value = "username") String username) {
+    @RequestMapping(value = "/users/finalize", method = RequestMethod.GET)
+    public ResponseEntity<?> finalizeOrder(@RequestAttribute("id") String username) {
         try {
+            System.out.println("login user is " + username );
             SingleUserDTO user = UserManager.getInstance().getUserByID(username);
             UserManager.getInstance().finalizeOrder(username);
             Message m = new Message("سفارش با موفقیت ثبت شد.آماده جهت ارسال پیک...");

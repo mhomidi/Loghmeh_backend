@@ -74,11 +74,10 @@ public class UserController {
 
     }
 
-    @RequestMapping(value = "/users/{username}", method = RequestMethod.GET)
-    public ResponseEntity<?>  getUser(@PathVariable(value = "username") String username,
-                                      @RequestAttribute("id") String loginUser ) {
+    @RequestMapping(value = "/users/user_info", method = RequestMethod.GET)
+    public ResponseEntity<?>  getUser(@RequestAttribute("id") String username ) {
         try {
-            System.out.println("login user is " + loginUser );
+            System.out.println("login user is " + username );
             System.out.println(username);
             return ResponseEntity.status(HttpStatus.OK).body(UserManager.getInstance().getUserByID(username));
         } catch (UserNotFound e) {
@@ -92,10 +91,11 @@ public class UserController {
         }
     }
 
-    @RequestMapping(value = "/users/{username}/add_credit", method = RequestMethod.POST)
-    public ResponseEntity<?> AddCredit(@PathVariable(value = "username") String username ,
+    @RequestMapping(value = "/users/add_credit", method = RequestMethod.POST)
+    public ResponseEntity<?> AddCredit(@RequestAttribute("id") String username,
             @RequestBody final CreditRequest request) {
         try {
+            System.out.println("login user is " + username );
             UserManager.getInstance().addCredit(username, Double.parseDouble(request.getMoney()));
             Message m = new Message("مبلغ با موفقیت به حساب کاربر اضافه شد");
             return ResponseEntity.status(HttpStatus.OK).body(m);
@@ -108,10 +108,11 @@ public class UserController {
         }
     }
 
-    @RequestMapping(value = "/users/{username}/add_cart", method = RequestMethod.POST)
-    public ResponseEntity<?> AddToCart(@PathVariable(value = "username") String username,
+    @RequestMapping(value = "/users/add_cart", method = RequestMethod.POST)
+    public ResponseEntity<?> AddToCart(@RequestAttribute("id") String username,
                                        @RequestBody final AddToCartRequest request) {
         try {
+            System.out.println("login user is " + username );
             String restaurantId = request.getRestaurantId();
             int menuId = Integer.parseInt(request.getMenuId());
             String foodName = request.getFoodName();
@@ -151,10 +152,11 @@ public class UserController {
     }
 
 
-    @RequestMapping(value = "/users/{username}/add_foodParty_cart", method = RequestMethod.POST)
-    public ResponseEntity<?> AddPartyCart(@PathVariable(value = "username") String username,
+    @RequestMapping(value = "/users/add_foodParty_cart", method = RequestMethod.POST)
+    public ResponseEntity<?> AddPartyCart(@RequestAttribute("id") String username,
                           @RequestBody final AddToCartFoodPartyRequest request) {
         try {
+            System.out.println("login user is " + username );
             String restaurantId = request.getRestaurantId();
             int menuId = Integer.parseInt(request.getMenuId());
             String foodName = request.getFoodName();
@@ -196,9 +198,10 @@ public class UserController {
     }
 
 
-    @RequestMapping(value = "/users/{username}/show_cart", method = RequestMethod.GET)
-    public  ResponseEntity<?> ShowCart(@PathVariable(value = "username") String username) {
+    @RequestMapping(value = "/users/show_cart", method = RequestMethod.GET)
+    public  ResponseEntity<?> ShowCart(@RequestAttribute("id") String username) {
         try{
+            System.out.println("login user is " + username );
             SingleUserDTO user = UserManager.getInstance().getUserByID(username);
             BuyBasketDTO buyBasketDTO = UserManager.getInstance().getUserCurrBuyBasket(username);
             return ResponseEntity.status(HttpStatus.OK).body(buyBasketDTO);
@@ -213,10 +216,11 @@ public class UserController {
 
 
 
-    @RequestMapping(value = "/users/{username}/increase", method = RequestMethod.POST)
-    public ResponseEntity<?> increaseCountFood(@PathVariable(value = "username") String username ,
+    @RequestMapping(value = "/users/increase", method = RequestMethod.POST)
+    public ResponseEntity<?> increaseCountFood(@RequestAttribute("id") String username,
                                                @RequestBody final ModifyCountFoodRequest request) {
         try{
+            System.out.println("login user is " + username );
             String foodName = request.getFoodName();
             int menuId = Integer.parseInt(request.getMenuId());
             int currCount = Integer.parseInt(request.getCurrCount());
@@ -237,10 +241,11 @@ public class UserController {
         }
     }
 
-    @RequestMapping(value = "/users/{username}/decrease", method = RequestMethod.POST)
-    public ResponseEntity<?> decreaseCountFood(@PathVariable(value = "username") String username ,
+    @RequestMapping(value = "/users/decrease", method = RequestMethod.POST)
+    public ResponseEntity<?> decreaseCountFood(@RequestAttribute("id") String username,
                                   @RequestBody final ModifyCountFoodRequest request) {
         try {
+            System.out.println("login user is " + username );
             String foodName = request.getFoodName();
             int menuId = Integer.parseInt(request.getMenuId());
             int currCount = Integer.parseInt(request.getCurrCount());

@@ -27,7 +27,7 @@ public class AuthFilter implements Filter {
         System.out.println("JWT  HTTP Request: ");
         try {
             String uri = ((HttpServletRequest)servletRequest).getRequestURI();
-            if(uri.equals("/login") || uri.equals("/signup")){
+            if(uri.equals("/Loghmeh_war/login") || uri.equals("/Loghmeh_war/signup")){
                 chain.doFilter(servletRequest, servletResponse);
                 return;
             }

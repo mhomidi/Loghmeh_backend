@@ -1,5 +1,7 @@
 package domain.manager;
 
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.common.hash.Hashing;
 
 import dataAccess.dataMapper.orderMenu.OrderMenuMapper;
@@ -18,10 +20,18 @@ import domain.repositories.Loghmeh;
 import domain.entity.User;
 import services.Authentication;
 
-
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.security.GeneralSecurityException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
+
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
 
 public class UserManager {
     private static UserManager instance;
@@ -218,6 +228,37 @@ public class UserManager {
         System.out.println("total money user should pay is:");
         System.out.println(buyBasketDTO.getTotalFood());
         return buyBasketDTO.getTotalMoney();
+    }
+
+
+    public void verifyGoogleIdToken(String idToken){
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(),  new JacksonFactory())
+                .setAudience(Collections.singletonList("917688244498-jte5pkllkdt43dc356ofu9umdsple4df.apps.googleusercontent.com"))
+                .build();
+        try {
+            GoogleIdToken id = verifier.verify(idToken);
+            if (id != null) {
+                Payload payload = id.getPayload();
+                String userId = payload.getSubject();
+                System.out.println("User ID: " + userId);
+                // Get profile information from payload
+                String email = payload.getEmail();
+                boolean emailVerified = Boolean.valueOf(payload.getEmailVerified());
+                String name = (String) payload.get("name");
+                String pictureUrl = (String) payload.get("picture");
+                String locale = (String) payload.get("locale");
+                String familyName = (String) payload.get("family_name");
+                String givenName = (String) payload.get("given_name");
+                System.out.println(email);
+                System.out.println(name);
+                System.out.println(familyName);
+            } else {
+                System.out.println("Invalid ID token.");
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 
 

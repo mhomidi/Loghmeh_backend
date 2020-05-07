@@ -7,6 +7,7 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.common.hash.Hashing;
 
+import controller.user.responses.TokenResponse;
 import dataAccess.dataMapper.orderMenu.OrderMenuMapper;
 import dataAccess.dataMapper.orders.OrdersMapper;
 import dataAccess.dataMapper.user.UserMapper;
@@ -231,10 +232,11 @@ public class UserManager {
     }
 
 
-    public void verifyGoogleIdToken(String idToken){
-        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(),  new JacksonFactory())
+    public TokenResponse verifyGoogleIdToken(String idToken) throws  SQLException {
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new JacksonFactory())
                 .setAudience(Collections.singletonList("917688244498-jte5pkllkdt43dc356ofu9umdsple4df.apps.googleusercontent.com"))
                 .build();
+
         try {
             GoogleIdToken id = verifier.verify(idToken);
             if (id != null) {
@@ -245,19 +247,34 @@ public class UserManager {
                 String email = payload.getEmail();
                 boolean emailVerified = Boolean.valueOf(payload.getEmailVerified());
                 String name = (String) payload.get("name");
-                String pictureUrl = (String) payload.get("picture");
-                String locale = (String) payload.get("locale");
                 String familyName = (String) payload.get("family_name");
                 String givenName = (String) payload.get("given_name");
                 System.out.println(email);
                 System.out.println(name);
                 System.out.println(familyName);
+                try {
+                    SingleUserDTO userDTO = this.getUserByID(email);
+                    return new TokenResponse(email, Authentication.createToken(email));
+                } catch (UserNotFound e) {
+                    UserManager.getInstance().registerUser(
+                            new UserDAO(givenName,
+                                    familyName,
+                                    email,
+                                    "null",
+                                    email,
+                                    "null",
+                                    0.0));
+                    SingleUserDTO userDTO = this.getUserByID(email);
+                    return new TokenResponse(email, Authentication.createToken(email));
+                }
             } else {
                 System.out.println("Invalid ID token.");
+                return null;
             }
         }catch (Exception e){
-            e.printStackTrace();
+            return null;
         }
+
 
     }
 

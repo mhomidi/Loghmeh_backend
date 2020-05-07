@@ -24,8 +24,23 @@ public class UserController {
     @RequestMapping(value = "/googleLogin", method = RequestMethod.POST)
     public ResponseEntity<?> login(@RequestBody GoogleLoginRequest request) {
         System.out.println(request.getIdToken());
-        UserManager.getInstance().verifyGoogleIdToken(request.getIdToken());
-        return  ResponseEntity.status(HttpStatus.OK).body("");
+        try {
+            TokenResponse tokenResponse = UserManager.getInstance().verifyGoogleIdToken(request.getIdToken());
+            if(tokenResponse==null){
+                Message m = new Message("خطای احراز هویت گوگل");
+                return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
+            }
+            else {
+                return ResponseEntity.status(HttpStatus.OK).body(tokenResponse);
+            }
+        }catch (SQLException e){
+            Message m = new Message("خطای دیتابیس هنگام احراز هویت گوگل");
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
+        }catch (Exception e){
+            Message m = new Message("خطای احراز هویت گوگل");
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
+        }
+
     }
 
 

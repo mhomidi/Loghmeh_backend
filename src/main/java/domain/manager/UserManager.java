@@ -254,7 +254,7 @@ public class UserManager {
                 System.out.println(familyName);
                 try {
                     SingleUserDTO userDTO = this.getUserByID(email);
-                    return new TokenResponse(email, Authentication.createToken(email));
+                    return new TokenResponse(Authentication.createToken(email),email);
                 } catch (UserNotFound e) {
                     UserManager.getInstance().registerUser(
                             new UserDAO(givenName,
@@ -265,7 +265,7 @@ public class UserManager {
                                     "null",
                                     0.0));
                     SingleUserDTO userDTO = this.getUserByID(email);
-                    return new TokenResponse(email, Authentication.createToken(email));
+                    return new TokenResponse(Authentication.createToken(email),email);
                 }
             } else {
                 System.out.println("Invalid ID token.");

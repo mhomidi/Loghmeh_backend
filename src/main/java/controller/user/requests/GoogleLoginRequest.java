@@ -2,14 +2,14 @@ package controller.user.requests;
 
 public class GoogleLoginRequest {
 
-    private String accessToken;
+    private String idToken;
 
 
-    public String getAccessToken() {
-        return accessToken;
+    public String getIdToken() {
+        return idToken;
     }
 
-    public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
+    public void setIdToken(String idToken) {
+        this.idToken = idToken;
     }
 }

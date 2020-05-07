@@ -23,7 +23,7 @@ public class UserController {
 
     @RequestMapping(value = "/googleLogin", method = RequestMethod.POST)
     public ResponseEntity<?> login(@RequestBody GoogleLoginRequest request) {
-        System.out.println(request.getAccessToken());
+        System.out.println(request.getIdToken());
         return  ResponseEntity.status(HttpStatus.OK).body("");
     }
 

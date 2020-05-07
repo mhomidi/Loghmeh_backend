@@ -20,6 +20,17 @@ import java.sql.SQLException;
 
 @RestController
 public class UserController {
+
+    @RequestMapping(value = "/googleLogin", method = RequestMethod.POST)
+    public ResponseEntity<?> login(@RequestBody GoogleLoginRequest request) {
+        System.out.println(request.getAccessToken());
+        return  ResponseEntity.status(HttpStatus.OK).body("");
+    }
+
+
+
+
+
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         try{

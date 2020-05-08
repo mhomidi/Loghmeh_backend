@@ -232,7 +232,7 @@ public class UserManager {
     }
 
 
-    public TokenResponse verifyGoogleIdToken(String idToken) throws  SQLException {
+    public TokenResponse verifyGoogleIdToken(String idToken) throws  SQLException , UserNotFound , GoogleVerifierException{
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new JacksonFactory())
                 .setAudience(Collections.singletonList("917688244498-jte5pkllkdt43dc356ofu9umdsple4df.apps.googleusercontent.com"))
                 .build();
@@ -252,27 +252,18 @@ public class UserManager {
                 System.out.println(email);
                 System.out.println(name);
                 System.out.println(familyName);
-                try {
-                    SingleUserDTO userDTO = this.getUserByID(email);
-                    return new TokenResponse(Authentication.createToken(email),email);
-                } catch (UserNotFound e) {
-                    UserManager.getInstance().registerUser(
-                            new UserDAO(givenName,
-                                    familyName,
-                                    email,
-                                    "null",
-                                    email,
-                                    "null",
-                                    0.0));
-                    SingleUserDTO userDTO = this.getUserByID(email);
-                    return new TokenResponse(Authentication.createToken(email),email);
-                }
+                SingleUserDTO userDTO = this.getUserByID(email);
+                return new TokenResponse(Authentication.createToken(email),email);
             } else {
                 System.out.println("Invalid ID token.");
                 return null;
             }
-        }catch (Exception e){
-            return null;
+        }catch (SQLException e){
+            throw  new SQLException();
+        }catch (UserNotFound e){
+            throw new UserNotFound();
+        } catch (Exception e){
+            throw new GoogleVerifierException();
         }
 
 

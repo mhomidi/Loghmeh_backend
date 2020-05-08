@@ -36,11 +36,13 @@ public class UserController {
         }catch (SQLException e){
             Message m = new Message("خطای دیتابیس هنگام احراز هویت گوگل");
             return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
-        }catch (Exception e){
-            Message m = new Message("خطای احراز هویت گوگل");
+        }catch (UserNotFound e){
+            Message m = new Message(e.getMessage());
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
+        }catch (GoogleVerifierException e){
+            Message m = new Message(e.getMessage());
             return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
         }
-
     }
 
 

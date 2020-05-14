@@ -59,6 +59,7 @@ public class UserController {
             System.out.println(loginInfo);
             return  ResponseEntity.status(HttpStatus.OK).body(new TokenResponse(token,request.getUsername()));
         }catch (LoginFailure e){
+            System.out.println("login failure");
             Message m = new Message(e.getMessage());
             return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(m);
         }catch (SQLException e){

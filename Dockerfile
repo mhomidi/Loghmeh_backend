@@ -1,15 +1,9 @@
-FROM maven:3.6.0-jdk-11-slim AS BUILD
 
-COPY src /usr/src/myapp/src
+FROM maven:3.5-jdk-11 as BUILD
+COPY src /usr/loghmeh/src
+COPY pom.xml /usr/loghmeh
+RUN mvn -f /usr/loghmeh/pom.xml clean package
 
-COPY pom.xml /usr/src/myapp
-
-COPY application.properties /usr/src/myapp
-
-RUN mvn -f /usr/src/myapp/pom.xml package -e
-
-# FROM openjdk:8-jdk-alpine
-
-#ENTRYPOINT ["ls","-l","/usr/src/myapp/target"]
-
-ENTRYPOINT ["java","-jar",""]
+FROM tomcat:9.0.20-jre11
+COPY --from=BUILD ???? /usr/local/tomcat/webapps/
+CMD ["catalina.sh", "run"]

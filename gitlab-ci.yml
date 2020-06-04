@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+spec:
+  selector:
+    app: loghmeh-backend
+  type: NodePort
+  ports:
+  - name: loghmeh-backend
+    port: 8080
+    nodePort: 8080
+    protocol: TCP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loghmeh-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loghmeh-backend
+  template:
+    metadata:
+      labels:
+        app: loghmeh-backend
+    spec:
+      containers:
+      - name: loghmeh-backend
+        image: quay.io/mhomidi/loghmeh_back:latest
+        imagePullPolicy: "Always"
+        resources:
+          requests:
+            memory: "300Mi"
+            cpu: "0.3"
+          limits:
+            cpu: "0.3"
+            memory: "301Mi"
+        ports:
+        - containerPort: 8080

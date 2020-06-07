@@ -1,0 +1,13 @@
+
+
+stages:
+  - build
+
+maven-build:
+  image: maven:3.5-jdk-11
+  stage: build
+  script:
+    - mvn -f pom.xml clean package
+  artifacts:
+    paths:
+      - target/*.war

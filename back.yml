@@ -9,7 +9,7 @@ spec:
   ports:
   - name: loghmeh-backend
     port: 8080
-    nodePort: 8080
+    nodePort: 31223
     protocol: TCP
 ---
 apiVersion: apps/v1
@@ -17,7 +17,7 @@ kind: Deployment
 metadata:
   name: loghmeh-backend
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: loghmeh-backend
